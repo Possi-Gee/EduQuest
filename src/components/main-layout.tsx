@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from './ui/button';
 import { PanelLeft } from 'lucide-react';
+import { Avatar, AvatarFallback } from './ui/avatar';
 
 
 const navLinks = [
@@ -47,7 +48,7 @@ function Logo() {
 function DesktopNav() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r">
+    <aside className="hidden md:flex flex-col w-64 border-r bg-card">
        <div className="p-4 border-b h-16 flex items-center">
          <Logo />
        </div>
@@ -57,7 +58,7 @@ function DesktopNav() {
              key={href}
              href={href}
              className={cn(
-               'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+               'flex items-center gap-3 rounded-lg px-3 py-2 text-foreground/80 transition-all hover:text-primary',
                { 'bg-muted text-primary': pathname === href }
              )}
            >
@@ -66,6 +67,13 @@ function DesktopNav() {
            </Link>
          ))}
        </nav>
+       <div className="mt-auto p-4">
+        <Link href="/profile">
+          <Avatar className="h-10 w-10">
+            <AvatarFallback className="bg-primary text-primary-foreground">N</AvatarFallback>
+          </Avatar>
+        </Link>
+       </div>
      </aside>
   );
 }

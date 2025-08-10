@@ -16,14 +16,14 @@ export default function QuizzesPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Quizzes</h1>
       <p className="text-muted-foreground">Test your knowledge. Choose a quiz to begin.</p>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="flex flex-col">
+          <Card key={quiz.id} className="flex flex-col bg-card/80 hover:bg-card/90 transition-colors">
             <CardHeader>
-              <CardTitle>{quiz.title}</CardTitle>
-              <div className="flex justify-between items-center text-sm text-muted-foreground">
+              <CardTitle className="text-xl font-bold">{quiz.title}</CardTitle>
+              <div className="flex justify-between items-center text-sm text-muted-foreground pt-2">
                 <CardDescription>{quiz.questions.length} questions</CardDescription>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" />
                   <span>{formatTime(quiz.timeLimit)}</span>
                 </div>
