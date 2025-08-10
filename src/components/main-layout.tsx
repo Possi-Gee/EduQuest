@@ -8,6 +8,7 @@ import { type ReactNode } from 'react';
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from './ui/button';
@@ -117,6 +118,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="sm:max-w-xs">
+                  <SheetTitle className="sr-only">Menu</SheetTitle>
                     <nav className="grid gap-2 text-lg font-medium">
                         <div className="p-4 border-b h-16 flex items-center">
                             <Logo />
