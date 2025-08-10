@@ -23,18 +23,51 @@ const Confetti: React.FC = () => {
   const confettiCount = 150;
 
   const memoizedPieces = useMemo(() => {
-    return Array.from({ length: confettiCount }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: 110 + Math.random() * 20, 
-      rotation: Math.random() * 360,
-      scale: Math.random() * 0.5 + 0.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      speedY: Math.random() * -15 - 5, 
-      speedX: Math.random() * 10 - 5,
-      opacity: 1,
-      animationDelay: `${Math.random() * 0.5}s`,
-    }));
+    return Array.from({ length: confettiCount }).map((_, i) => {
+      const side = i % 4; // 0: top, 1: bottom, 2: left, 3: right
+      let x, y, speedX, speedY;
+
+      switch (side) {
+        case 0: // Top
+          x = Math.random() * 100;
+          y = -10;
+          speedX = Math.random() * 10 - 5;
+          speedY = Math.random() * 5 + 2;
+          break;
+        case 1: // Bottom
+          x = Math.random() * 100;
+          y = 110;
+          speedX = Math.random() * 10 - 5;
+          speedY = Math.random() * -5 - 2;
+          break;
+        case 2: // Left
+          x = -10;
+          y = Math.random() * 100;
+          speedX = Math.random() * 5 + 2;
+          speedY = Math.random() * 10 - 5;
+          break;
+        case 3: // Right
+        default:
+          x = 110;
+          y = Math.random() * 100;
+          speedX = Math.random() * -5 - 2;
+          speedY = Math.random() * 10 - 5;
+          break;
+      }
+      
+      return {
+        id: i,
+        x,
+        y,
+        rotation: Math.random() * 360,
+        scale: Math.random() * 0.5 + 0.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speedY,
+        speedX,
+        opacity: 1,
+        animationDelay: `${Math.random() * 0.5}s`,
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -45,20 +78,23 @@ const Confetti: React.FC = () => {
     const animate = () => {
       setPieces(prevPieces =>
         prevPieces.map(p => {
-          if (p.y < -10 || p.y > 120) {
-             return { ...p, opacity: 0};
-          }
-          const newY = p.y + p.speedY;
-          const newX = p.x + p.speedX;
-          const newSpeedY = p.speedY + 0.5; // gravity
+            const newY = p.y + p.speedY;
+            const newX = p.x + p.speedX;
+            const newSpeedY = p.speedY + 0.15; // gravity
 
-          return { 
-            ...p, 
-            y: newY, 
-            x: newX, 
-            speedY: newSpeedY,
-            rotation: p.rotation + p.speedX 
-          };
+            let opacity = p.opacity;
+            if (p.y > 120 || p.y < -20 || p.x > 120 || p.x < -20) {
+              opacity = 0;
+            }
+
+            return { 
+              ...p, 
+              y: newY, 
+              x: newX, 
+              speedY: newSpeedY,
+              rotation: p.rotation + p.speedX,
+              opacity,
+            };
         })
       );
       animationFrameId = requestAnimationFrame(animate);
@@ -68,8 +104,8 @@ const Confetti: React.FC = () => {
         animationFrameId = requestAnimationFrame(animate);
     }
     
-    const startTimeout = setTimeout(startAnimation, 100);
-    const stopTimeout = setTimeout(() => cancelAnimationFrame(animationFrameId), 5000);
+    const startTimeout = setTimeout(startAnimation, 3000);
+    const stopTimeout = setTimeout(() => cancelAnimationFrame(animationFrameId), 8000);
 
     return () => {
         clearTimeout(startTimeout);
