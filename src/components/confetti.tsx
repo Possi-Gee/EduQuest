@@ -15,7 +15,7 @@ interface ConfettiPiece {
   animationDelay: string;
 }
 
-const colors = ['#FFC107', '#11D565', '#FFFFFF', '#FFD700'];
+const colors = ['#FFC107', '#11D565', '#FFFFFF', '#FFD700', '#DA70D6', '#4169E1'];
 
 const Confetti: React.FC = () => {
   const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
@@ -24,48 +24,20 @@ const Confetti: React.FC = () => {
 
   const memoizedPieces = useMemo(() => {
     return Array.from({ length: confettiCount }).map((_, i) => {
-      const side = i % 4; // 0: top, 1: bottom, 2: left, 3: right
-      let x, y, speedX, speedY;
-
-      switch (side) {
-        case 0: // Top
-          x = Math.random() * 100;
-          y = -10;
-          speedX = Math.random() * 10 - 5;
-          speedY = Math.random() * 5 + 2;
-          break;
-        case 1: // Bottom
-          x = Math.random() * 100;
-          y = 110;
-          speedX = Math.random() * 10 - 5;
-          speedY = Math.random() * -5 - 2;
-          break;
-        case 2: // Left
-          x = -10;
-          y = Math.random() * 100;
-          speedX = Math.random() * 5 + 2;
-          speedY = Math.random() * 10 - 5;
-          break;
-        case 3: // Right
-        default:
-          x = 110;
-          y = Math.random() * 100;
-          speedX = Math.random() * -5 - 2;
-          speedY = Math.random() * 10 - 5;
-          break;
-      }
+      const angle = Math.random() * 2 * Math.PI;
+      const initialSpeed = Math.random() * 8 + 4; // pop-out speed
       
       return {
         id: i,
-        x,
-        y,
+        x: 50, // Start from center
+        y: 50, // Start from center
         rotation: Math.random() * 360,
         scale: Math.random() * 0.5 + 0.5,
         color: colors[Math.floor(Math.random() * colors.length)],
-        speedY,
-        speedX,
+        speedY: Math.sin(angle) * initialSpeed,
+        speedX: Math.cos(angle) * initialSpeed,
         opacity: 1,
-        animationDelay: `${Math.random() * 0.5}s`,
+        animationDelay: '0s',
       }
     });
   }, []);
@@ -81,9 +53,10 @@ const Confetti: React.FC = () => {
             const newY = p.y + p.speedY;
             const newX = p.x + p.speedX;
             const newSpeedY = p.speedY + 0.15; // gravity
+            const newSpeedX = p.speedX * 0.98; // friction
 
             let opacity = p.opacity;
-            if (p.y > 120 || p.y < -20 || p.x > 120 || p.x < -20) {
+            if (p.y > 120) { // Disappear when off-screen
               opacity = 0;
             }
 
@@ -92,6 +65,7 @@ const Confetti: React.FC = () => {
               y: newY, 
               x: newX, 
               speedY: newSpeedY,
+              speedX: newSpeedX,
               rotation: p.rotation + p.speedX,
               opacity,
             };
@@ -104,7 +78,9 @@ const Confetti: React.FC = () => {
         animationFrameId = requestAnimationFrame(animate);
     }
     
-    const startTimeout = setTimeout(startAnimation, 3000);
+    // Start animation after a short delay
+    const startTimeout = setTimeout(startAnimation, 100);
+    // Stop animation after a while to save performance
     const stopTimeout = setTimeout(() => cancelAnimationFrame(animationFrameId), 8000);
 
     return () => {
@@ -131,7 +107,7 @@ const Confetti: React.FC = () => {
             opacity: p.opacity,
             width: '8px',
             height: '16px',
-            transition: 'opacity 0.5s ease-out, top 0.05s linear, left 0.05s linear'
+            transition: 'opacity 0.5s ease-out'
           }}
         />
       ))}
