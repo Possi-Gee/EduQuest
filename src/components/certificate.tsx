@@ -14,7 +14,7 @@ const Certificate = React.forwardRef<HTMLDivElement, CertificateProps>(
     return (
       <div
         ref={ref}
-        className="font-serif bg-[#1a1a1a] text-white p-8 rounded-lg shadow-2xl max-w-4xl mx-auto relative overflow-hidden"
+        className="font-serif bg-[#1a1a1a] text-white p-8 rounded-lg shadow-2xl max-w-3xl mx-auto relative overflow-hidden"
         style={{ fontFamily: "'Times New Roman', Times, serif" }}
       >
         {/* Background texture */}
