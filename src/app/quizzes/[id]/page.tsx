@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Clock, Download } from 'lucide-react';
+import { ArrowLeft, Clock, Download, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Certificate } from '@/components/certificate';
 import Confetti from '@/components/confetti';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { cn } from '@/lib/utils';
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -99,42 +100,78 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const hasPassed = userScorePercentage >= passPercentage;
 
   if (isFinished) {
-    if (hasPassed) {
-      return (
-        <div className="relative isolate">
-            <div className="relative z-20">
-              <h1 className="text-3xl font-bold text-center mb-4">Congratulations! You earned a certificate.</h1>
-              <Certificate 
-                ref={certificateRef}
-                userName={user.name}
-                quizName={quiz.title}
-                date={new Date().toLocaleDateString()}
-                scorePercentage={Math.round(userScorePercentage)}
-              />
-               <div className="flex justify-center gap-4 mt-6">
-                  <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
-                  <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
-                  <Button variant="outline" onClick={handleDownload}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-              </div>
-            </div>
-            <Confetti />
-        </div>
-      );
-    }
-
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-        <h1 className="text-4xl font-bold">Quiz Complete!</h1>
-        <p className="text-2xl text-muted-foreground">Your Score</p>
-        <p className="text-6xl font-bold text-destructive">{score} / {quiz.questions.length}</p>
-        <p className="text-muted-foreground">Unfortunately, you did not pass. You needed {passPercentage}% to receive a certificate.</p>
-        <div className="flex gap-4 mt-6">
-            <Button onClick={() => router.push('/quizzes')}>Try Another Quiz</Button>
-            <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
-        </div>
+      <div className="max-w-4xl mx-auto space-y-8">
+        {hasPassed ? (
+          <div className="relative isolate">
+              <div className="relative z-10">
+                <h1 className="text-3xl font-bold text-center mb-4">Congratulations! You earned a certificate.</h1>
+                <Certificate 
+                  ref={certificateRef}
+                  userName={user.name}
+                  quizName={quiz.title}
+                  date={new Date().toLocaleDateString()}
+                  scorePercentage={Math.round(userScorePercentage)}
+                />
+                 <div className="flex justify-center gap-4 mt-6">
+                    <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
+                    <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
+                    <Button variant="outline" onClick={handleDownload}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                </div>
+              </div>
+              <Confetti />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <h1 className="text-4xl font-bold">Quiz Complete!</h1>
+            <p className="text-2xl text-muted-foreground">Your Score</p>
+            <p className="text-6xl font-bold text-destructive">{score} / {quiz.questions.length}</p>
+            <p className="text-muted-foreground">Unfortunately, you did not pass. You needed {passPercentage}% to receive a certificate.</p>
+            <div className="flex gap-4 mt-6">
+                <Button onClick={() => router.push('/quizzes')}>Try Another Quiz</Button>
+                <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-6 pt-8">
+            <h2 className="text-2xl font-bold">Quiz Results for "{quiz.title}"</h2>
+            <p className="text-muted-foreground">You scored {Math.round(userScorePercentage)}% ({score} out of {quiz.questions.length})!</p>
+            <div className="space-y-4">
+              {quiz.questions.map((question, index) => {
+                const userAnswerIndex = selectedAnswers[index];
+                const isCorrect = userAnswerIndex === question.answerIndex;
+                const userAnswer = userAnswerIndex !== undefined ? question.options[userAnswerIndex] : "Not answered";
+                const correctAnswer = question.options[question.answerIndex];
+
+                return (
+                  <Card key={index} className="bg-card/50">
+                    <CardContent className="p-4">
+                      <p className="font-semibold mb-3">{index + 1}. {question.question}</p>
+                      <div className="flex items-start gap-3">
+                        {isCorrect ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                        )}
+                        <div className="text-sm">
+                          <p>
+                            <span className={cn("font-medium", isCorrect ? "text-green-400" : "text-red-400")}>
+                                Your answer: {userAnswer}.
+                            </span>
+                            {!isCorrect && <span className="text-green-400 ml-2">Correct answer: {correctAnswer}</span>}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
       </div>
     );
   }
