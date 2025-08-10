@@ -2,9 +2,15 @@ import { getQuizzes } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Clock } from 'lucide-react';
 
 export default function QuizzesPage() {
   const quizzes = getQuizzes();
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  };
 
   return (
     <div className="space-y-6">
@@ -15,7 +21,13 @@ export default function QuizzesPage() {
           <Card key={quiz.id} className="flex flex-col">
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
-              <CardDescription>{quiz.questions.length} questions</CardDescription>
+              <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <CardDescription>{quiz.questions.length} questions</CardDescription>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{formatTime(quiz.timeLimit)}</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="flex-grow">
                <p className="text-sm text-muted-foreground">Challenge yourself and see how much you've learned!</p>

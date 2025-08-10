@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import { getQuizById } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { CheckCircle2, XCircle } from 'lucide-react';
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -21,6 +20,37 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(quiz?.timeLimit ?? 0);
+
+  const finishQuiz = () => {
+    if (!quiz) return;
+    let calculatedScore = 0;
+    quiz.questions.forEach((question, index) => {
+      // Use selectedAnswers[index] ?? -1 to avoid issues with unanswered questions
+      if (selectedAnswers[index] === question.answerIndex) {
+        calculatedScore++;
+      }
+    });
+    setScore(calculatedScore);
+    setIsFinished(true);
+  };
+
+  useEffect(() => {
+    if (!quiz || isFinished) return;
+
+    if (timeLeft <= 0) {
+      finishQuiz();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prevTime => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, isFinished, quiz]);
+
 
   if (!quiz) {
     notFound();
@@ -34,15 +64,14 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     if (currentQuestionIndex < quiz.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      let calculatedScore = 0;
-      quiz.questions.forEach((question, index) => {
-        if (selectedAnswers[index] === question.answerIndex) {
-          calculatedScore++;
-        }
-      });
-      setScore(calculatedScore);
-      setIsFinished(true);
+      finishQuiz();
     }
+  };
+  
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
@@ -71,7 +100,13 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
       <Card>
         <CardHeader>
-          <CardTitle>{quiz.title}</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>{quiz.title}</CardTitle>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="h-5 w-5" />
+              <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+            </div>
+          </div>
           <CardDescription>Question {currentQuestionIndex + 1} of {quiz.questions.length}</CardDescription>
           <Progress value={progress} className="w-full pt-2" />
         </CardHeader>

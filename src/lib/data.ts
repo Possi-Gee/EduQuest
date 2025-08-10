@@ -40,6 +40,7 @@ export const quizzes: Quiz[] = [
   {
     id: '1',
     title: 'History of Ancient Rome',
+    timeLimit: 600, // 10 minutes
     questions: [
       {
         question: 'When was Rome founded?',
@@ -66,6 +67,7 @@ export const quizzes: Quiz[] = [
   {
     id: '2',
     title: 'Introduction to Algebra',
+    timeLimit: 300, // 5 minutes
     questions: [
       {
         question: 'What is the value of x in the equation 2x + 3 = 7?',

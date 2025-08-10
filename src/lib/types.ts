@@ -15,6 +15,7 @@ export interface Quiz {
   id:string;
   title: string;
   questions: QuizQuestion[];
+  timeLimit: number; // Time limit in seconds
 }
 
 export interface QuizAttempt {
