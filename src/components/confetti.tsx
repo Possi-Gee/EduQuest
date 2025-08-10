@@ -65,7 +65,7 @@ const Confetti: React.FC = () => {
 
   return (
     <div
-      className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-50"
+      className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-10"
       aria-hidden="true"
     >
       {pieces.map(p => (

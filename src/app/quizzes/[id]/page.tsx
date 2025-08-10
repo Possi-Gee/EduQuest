@@ -101,23 +101,26 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   if (isFinished) {
     if (hasPassed) {
       return (
-        <div className="relative">
-          <Confetti />
-          <Certificate 
-            ref={certificateRef}
-            userName={user.name}
-            quizName={quiz.title}
-            date={new Date().toLocaleDateString()}
-            scorePercentage={Math.round(userScorePercentage)}
-          />
-           <div className="flex justify-center gap-4 mt-6">
-              <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
-              <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
-              <Button variant="outline" onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-          </div>
+        <div className="relative isolate">
+            <div className="relative z-20">
+              <h1 className="text-3xl font-bold text-center mb-4">Congratulations! You earned a certificate.</h1>
+              <Certificate 
+                ref={certificateRef}
+                userName={user.name}
+                quizName={quiz.title}
+                date={new Date().toLocaleDateString()}
+                scorePercentage={Math.round(userScorePercentage)}
+              />
+               <div className="flex justify-center gap-4 mt-6">
+                  <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
+                  <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
+                  <Button variant="outline" onClick={handleDownload}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+              </div>
+            </div>
+            <Confetti />
         </div>
       );
     }
