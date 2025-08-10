@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { getQuizById } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +12,10 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
-export default function QuizPage({ params }: { params: { id: string } }) {
+export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const quiz = getQuizById(params.id);
+  const { id } = use(params);
+  const quiz = getQuizById(id);
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
