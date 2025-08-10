@@ -6,10 +6,11 @@ interface CertificateProps {
   userName: string;
   quizName: string;
   date: string;
+  scorePercentage: number;
 }
 
 const Certificate = React.forwardRef<HTMLDivElement, CertificateProps>(
-  ({ userName, quizName, date }, ref) => {
+  ({ userName, quizName, date, scorePercentage }, ref) => {
     return (
       <div
         ref={ref}
@@ -64,7 +65,7 @@ const Certificate = React.forwardRef<HTMLDivElement, CertificateProps>(
           <p className="text-6xl text-yellow-400 my-4" style={{ fontFamily: "'Dancing Script', cursive" }}>{userName}</p>
           
           <p className="text-base text-gray-300 max-w-xl mx-auto">
-            for successfully completing the <span className="font-bold text-yellow-500">{quizName}</span> quiz. This award is a testament to your dedication and can be a motivation to further improve your abilities in the future.
+            for successfully completing the <span className="font-bold text-yellow-500">{quizName}</span> quiz with a score of <span className="font-bold text-yellow-500">{scorePercentage}%</span>. This award is a testament to your dedication and can be a motivation to further improve your abilities in the future.
           </p>
 
           <div className="flex justify-around w-full mt-16 pt-8 border-t border-yellow-500/20">

@@ -108,6 +108,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             userName={user.name}
             quizName={quiz.title}
             date={new Date().toLocaleDateString()}
+            scorePercentage={Math.round(userScorePercentage)}
           />
            <div className="flex justify-center gap-4 mt-6">
               <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
