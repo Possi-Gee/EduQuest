@@ -6,16 +6,13 @@ import { Home, BookOpen, ClipboardCheck, User, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode } from 'react';
 import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-  SidebarInset,
-} from '@/components/ui/sidebar';
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Button } from './ui/button';
+import { PanelLeft } from 'lucide-react';
+
 
 const navLinks = [
   { href: '/', icon: Home, label: 'Home' },
@@ -50,26 +47,26 @@ function Logo() {
 function DesktopNav() {
   const pathname = usePathname();
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="justify-between">
-        <Logo />
-        <SidebarTrigger />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          {navLinks.map(({ href, icon: Icon, label }) => (
-            <SidebarMenuItem key={href}>
-              <Link href={href}>
-                <SidebarMenuButton tooltip={label} isActive={pathname === href}>
-                  <Icon />
-                  <span>{label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-    </Sidebar>
+    <aside className="hidden md:flex flex-col w-64 border-r">
+       <div className="p-4 border-b h-16 flex items-center">
+         <Logo />
+       </div>
+       <nav className="flex-1 p-4 space-y-2">
+         {navLinks.map(({ href, icon: Icon, label }) => (
+           <Link
+             key={href}
+             href={href}
+             className={cn(
+               'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+               { 'bg-muted text-primary': pathname === href }
+             )}
+           >
+             <Icon className="h-4 w-4" />
+             {label}
+           </Link>
+         ))}
+       </nav>
+     </aside>
   );
 }
 
@@ -97,21 +94,47 @@ function MobileNav() {
 }
 
 export default function MainLayout({ children }: { children: ReactNode }) {
+    const pathname = usePathname();
   return (
-    <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <DesktopNav />
-        <SidebarInset>
+        <div className="flex flex-col flex-1">
           <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-card z-10">
             <Logo />
-            <SidebarTrigger />
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button size="icon" variant="outline">
+                        <PanelLeft className="h-5 w-5" />
+                        <span className="sr-only">Toggle Menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="sm:max-w-xs">
+                    <nav className="grid gap-2 text-lg font-medium">
+                        <div className="p-4 border-b h-16 flex items-center">
+                            <Logo />
+                        </div>
+                        {navLinks.map(({ href, icon: Icon, label }) => (
+                           <Link
+                           key={href}
+                           href={href}
+                           className={cn(
+                             'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
+                             { 'text-foreground': pathname === href }
+                           )}
+                         >
+                           <Icon className="h-5 w-5" />
+                           {label}
+                         </Link>
+                        ))}
+                    </nav>
+                </SheetContent>
+            </Sheet>
           </header>
           <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
               {children}
           </main>
-        </SidebarInset>
+        </div>
         <MobileNav />
       </div>
-    </SidebarProvider>
   );
 }
