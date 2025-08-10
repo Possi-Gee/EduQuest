@@ -36,7 +36,7 @@
   }
 
   .dark {
-    --background: 0 0% 0%; /* #000000 */
+    --background: 0 0% 10%; /* #1a1a1a */
     --foreground: 0 0% 98%;
 
     --card: 0 0% 10%;
@@ -70,7 +70,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    --sidebar-background: 0 0% 5%;
+    --sidebar-background: 225 43% 10%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 45 100% 52%;
     --sidebar-primary-foreground: 45 100% 10%;

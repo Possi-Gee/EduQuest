@@ -39,7 +39,7 @@ function Logo() {
 function DesktopNav() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-2 p-4 bg-card w-64 border-r">
+    <aside className="hidden md:flex flex-col gap-2 p-4 bg-sidebar w-64 border-r">
       <div className="p-2 mb-4">
         <Logo />
       </div>
@@ -65,7 +65,7 @@ function DesktopNav() {
 function MobileNav() {
   const pathname = usePathname();
   return (
-    <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50">
+    <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t z-50">
       <nav className="flex justify-around p-1">
         {navLinks.map(({ href, icon: Icon, label }) => (
           <Link
@@ -90,7 +90,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full bg-background">
       <DesktopNav />
       <div className="flex flex-col flex-1">
-        <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-card z-10">
+        <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-sidebar z-10">
           <Logo />
         </header>
         <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
