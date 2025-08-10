@@ -38,6 +38,7 @@
   .dark {
     --background: 0 0% 10%; /* #1a1a1a */
     --foreground: 0 0% 98%;
+    --sidebar: 240 100% 25%;
 
     --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
