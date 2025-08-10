@@ -5,6 +5,17 @@ import { usePathname } from 'next/navigation';
 import { Home, BookOpen, ClipboardCheck, User, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode } from 'react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+  SidebarInset,
+} from '@/components/ui/sidebar';
 
 const navLinks = [
   { href: '/', icon: Home, label: 'Home' },
@@ -31,7 +42,7 @@ function Logo() {
         <path d="M2 17l10 5 10-5" />
         <path d="M2 12l10 5 10-5" />
       </svg>
-      <span>EduQuest</span>
+      <span className="truncate">EduQuest</span>
     </Link>
   );
 }
@@ -39,26 +50,26 @@ function Logo() {
 function DesktopNav() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-2 p-4 bg-card w-64 border-r">
-      <div className="p-2 mb-4">
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="justify-between">
         <Logo />
-      </div>
-      <nav className="flex flex-col gap-2">
-        {navLinks.map(({ href, icon: Icon, label }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-              { 'bg-primary/20 text-primary': pathname === href }
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            {label}
-          </Link>
-        ))}
-      </nav>
-    </aside>
+        <SidebarTrigger />
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+          {navLinks.map(({ href, icon: Icon, label }) => (
+            <SidebarMenuItem key={href}>
+              <Link href={href} legacyBehavior passHref>
+                <SidebarMenuButton tooltip={label} isActive={pathname === href}>
+                  <Icon />
+                  <span>{label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+    </Sidebar>
   );
 }
 
@@ -87,17 +98,20 @@ function MobileNav() {
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <DesktopNav />
-      <div className="flex flex-col flex-1">
-        <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-card z-10">
-          <Logo />
-        </header>
-        <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
-            {children}
-        </main>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <DesktopNav />
+        <SidebarInset>
+          <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-card z-10">
+            <Logo />
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
+              {children}
+          </main>
+        </SidebarInset>
+        <MobileNav />
       </div>
-      <MobileNav />
-    </div>
+    </SidebarProvider>
   );
 }
