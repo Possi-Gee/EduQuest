@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react';
 import { getSummary, type SummarizeFormState } from './actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,7 @@ function SubmitButton() {
 
 export default function SummarizePage() {
   const initialState: SummarizeFormState = { message: '', errors: {}, summary: '' };
-  const [state, dispatch] = useFormState(getSummary, initialState);
+  const [state, dispatch] = useActionState(getSummary, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
