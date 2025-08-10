@@ -59,7 +59,7 @@ function DesktopNav() {
         <SidebarMenu>
           {navLinks.map(({ href, icon: Icon, label }) => (
             <SidebarMenuItem key={href}>
-              <Link href={href} legacyBehavior passHref>
+              <Link href={href}>
                 <SidebarMenuButton tooltip={label} isActive={pathname === href}>
                   <Icon />
                   <span>{label}</span>
