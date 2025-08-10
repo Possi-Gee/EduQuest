@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, use, useEffect } from 'react';
-import { getQuizById } from '@/lib/data';
+import { getQuizById, getUser } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { Certificate } from '@/components/certificate';
+import Confetti from '@/components/confetti';
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
   const quiz = getQuizById(id);
+  const user = getUser();
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -76,15 +79,37 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
+  
+  const passPercentage = 70;
+  const userScorePercentage = (score / quiz.questions.length) * 100;
+  const hasPassed = userScorePercentage >= passPercentage;
 
   if (isFinished) {
+    if (hasPassed) {
+      return (
+        <div className="relative">
+          <Confetti />
+          <Certificate 
+            userName={user.name}
+            quizName={quiz.title}
+            date={new Date().toLocaleDateString()}
+          />
+           <div className="flex justify-center gap-4 mt-6">
+              <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
+              <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
         <h1 className="text-4xl font-bold">Quiz Complete!</h1>
         <p className="text-2xl text-muted-foreground">Your Score</p>
-        <p className="text-6xl font-bold text-primary">{score} / {quiz.questions.length}</p>
+        <p className="text-6xl font-bold text-destructive">{score} / {quiz.questions.length}</p>
+        <p className="text-muted-foreground">Unfortunately, you did not pass. You needed {passPercentage}% to receive a certificate.</p>
         <div className="flex gap-4 mt-6">
-            <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
+            <Button onClick={() => router.push('/quizzes')}>Try Another Quiz</Button>
             <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
         </div>
       </div>
