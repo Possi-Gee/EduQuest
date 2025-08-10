@@ -1,23 +1,26 @@
 'use client';
 
-import { useState, use, useEffect } from 'react';
+import { useState, use, useEffect, useRef } from 'react';
 import { getQuizById, getUser } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Clock, Download } from 'lucide-react';
 import Link from 'next/link';
 import { Certificate } from '@/components/certificate';
 import Confetti from '@/components/confetti';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
   const quiz = getQuizById(id);
   const user = getUser();
+  const certificateRef = useRef<HTMLDivElement>(null);
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
@@ -77,6 +80,17 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
+  const handleDownload = () => {
+    if (certificateRef.current) {
+      html2canvas(certificateRef.current, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('landscape', 'px', [canvas.width, canvas.height]);
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('certificate.pdf');
+      });
+    }
+  };
+
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
   
@@ -90,6 +104,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <div className="relative">
           <Confetti />
           <Certificate 
+            ref={certificateRef}
             userName={user.name}
             quizName={quiz.title}
             date={new Date().toLocaleDateString()}
@@ -97,6 +112,10 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
            <div className="flex justify-center gap-4 mt-6">
               <Button onClick={() => router.push('/quizzes')}>Take Another Quiz</Button>
               <Button variant="outline" onClick={() => router.push('/profile')}>View Profile</Button>
+              <Button variant="outline" onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
           </div>
         </div>
       );
