@@ -31,7 +31,7 @@ function Logo() {
         <path d="M2 17l10 5 10-5" />
         <path d="M2 12l10 5 10-5" />
       </svg>
-      <span className="hidden sm:inline">EduQuest</span>
+      <span>EduQuest</span>
     </Link>
   );
 }
