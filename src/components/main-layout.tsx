@@ -8,6 +8,7 @@ import { type ReactNode } from 'react';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
@@ -71,7 +72,7 @@ function DesktopNav() {
        <div className="mt-auto p-4">
         <Link href="/profile">
           <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary text-primary-foreground">N</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground">A</AvatarFallback>
           </Avatar>
         </Link>
        </div>
@@ -118,7 +119,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="sm:max-w-xs">
-                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                  <SheetHeader>
+                     <SheetTitle className="sr-only">Menu</SheetTitle>
+                  </SheetHeader>
                     <nav className="grid gap-2 text-lg font-medium">
                         <div className="p-4 border-b h-16 flex items-center">
                             <Logo />

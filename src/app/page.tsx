@@ -16,7 +16,7 @@ export default function Home() {
         Ready to start your learning journey? Here are some quick links to get you started.
       </p>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="bg-card/80 border-border">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">My Notes</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -30,7 +30,7 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="bg-card/80 border-border">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">Interactive Quizzes</CardTitle>
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
@@ -44,7 +44,7 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="bg-card/80 border-border">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">AI Summarizer</CardTitle>
             <Sparkles className="h-4 w-4 text-muted-foreground" />
