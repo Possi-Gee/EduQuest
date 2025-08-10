@@ -36,10 +36,10 @@
   }
 
   .dark {
-    --background: 0 0% 0%; /* #000000 */
+    --background: 224 71.4% 4.1%; /* Deep Navy Blue */
     --foreground: 0 0% 98%;
 
-    --card: 240 100% 15%; /* Deep Navy Blue */
+    --card: 224 71.4% 10%; /* Slightly lighter navy */
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 10%;
@@ -60,8 +60,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 224 71.4% 15%;
+    --input: 224 71.4% 15%;
     --ring: 45 100% 52%;
     
     --chart-1: 12 76% 61%;
