@@ -39,7 +39,7 @@
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    --card: 225 40% 12%;
+    --card: 225 60% 10%;
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 3%;
@@ -51,7 +51,7 @@
     --secondary: 225 40% 20%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 225 40% 18%;
+    --muted: 240 40% 30%;
     --muted-foreground: 0 0% 63.9%;
 
     --accent: 146 85% 45%; /* #11D565 */
@@ -60,8 +60,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 225 40% 22%;
-    --input: 225 40% 22%;
+    --border: 225 60% 15%;
+    --input: 225 60% 15%;
     --ring: 45 100% 52%;
     
     --chart-1: 12 76% 61%;
