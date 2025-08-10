@@ -16,13 +16,13 @@ export default function Home() {
         Ready to start your learning journey? Here are some quick links to get you started.
       </p>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">My Notes</CardTitle>
+            <CardTitle className="text-base font-medium">My Notes</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Access and review your educational notes.
             </p>
             <Button asChild size="sm" className="mt-4">
@@ -30,13 +30,13 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Interactive Quizzes</CardTitle>
+            <CardTitle className="text-base font-medium">Interactive Quizzes</CardTitle>
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Test your knowledge with our quizzes.
             </p>
             <Button asChild size="sm" className="mt-4">
@@ -44,13 +44,13 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card/80">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">AI Summarizer</CardTitle>
+            <CardTitle className="text-base font-medium">AI Summarizer</CardTitle>
             <Sparkles className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Get quick summaries of notes from any URL.
             </p>
             <Button asChild size="sm" className="mt-4">
