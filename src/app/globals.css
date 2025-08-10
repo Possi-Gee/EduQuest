@@ -36,9 +36,9 @@
   }
 
   .dark {
-    --background: 0 0% 10%; /* #1a1a1a */
+    --background: 0 0% 0%; /* #000000 */
     --foreground: 0 0% 98%;
-    --sidebar: 240 100% 25%;
+    --sidebar: 240 100% 15%; /* Deep Navy Blue */
 
     --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
