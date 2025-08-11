@@ -10,11 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft } from 'lucide-react';
-import { getNoteById, getSubjects } from '@/lib/data';
+import { getNoteById, getSubjects, updateNote } from '@/lib/data';
+import { useToast } from '@/hooks/use-toast';
 
 export default function EditNotePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
+  const { toast } = useToast();
   
   const [note, setNote] = useState(getNoteById(id));
   const [title, setTitle] = useState(note?.title ?? '');
@@ -40,13 +42,12 @@ export default function EditNotePage({ params }: { params: Promise<{ id: string 
   }
 
   const handleSave = () => {
-    // In a real app, you would save this data to your backend
      if (!title || !content || !category) {
-        alert('Please fill out all fields.');
+        toast({ title: 'Missing Fields', description: 'Please fill out all fields.', variant: 'destructive'});
         return;
     }
-    console.log('Updating note:', { id, title, content, category });
-    alert('Note updated successfully! (Check console)');
+    updateNote(id, { title, content, category });
+    toast({ title: 'Success!', description: 'Note updated successfully.' });
     router.push('/manage-notes');
   };
 

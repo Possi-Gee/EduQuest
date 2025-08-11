@@ -121,7 +121,22 @@ export const getNotes = () => notes;
 export const getNoteById = (id: string) => notes.find(note => note.id === id);
 export const deleteNote = (id: string) => {
   notes = notes.filter(note => note.id !== id);
-}
+};
+export const addNote = (note: Omit<Note, 'id'>) => {
+    const newNote: Note = {
+        id: Date.now().toString(),
+        ...note,
+    };
+    notes.unshift(newNote);
+    return newNote;
+};
+export const updateNote = (id: string, updatedNote: Partial<Omit<Note, 'id'>>) => {
+    const noteIndex = notes.findIndex(n => n.id === id);
+    if (noteIndex > -1) {
+        notes[noteIndex] = { ...notes[noteIndex], ...updatedNote };
+    }
+};
+
 export const getQuizzes = () => quizzes;
 export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;

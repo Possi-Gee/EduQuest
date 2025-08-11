@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Sparkles } from 'lucide-react';
-import { getSubjects } from '@/lib/data'; // Assuming we can get existing categories from notes
+import { getSubjects, addNote } from '@/lib/data'; // Assuming we can get existing categories from notes
 import { generateNote } from '@/ai/flows/generate-note-flow';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,13 +25,12 @@ export default function NewNotePage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSave = () => {
-    // In a real app, you would save this data to your backend
     if (!title || !content || !category) {
-        alert('Please fill out all fields.');
+        toast({ title: 'Missing Fields', description: 'Please fill out all fields.', variant: 'destructive'});
         return;
     }
-    console.log('Saving note:', { title, content, category });
-    alert('Note saved successfully! (Check console)');
+    addNote({ title, content, category });
+    toast({ title: 'Success!', description: 'Note created successfully.' });
     router.push('/manage-notes');
   };
 

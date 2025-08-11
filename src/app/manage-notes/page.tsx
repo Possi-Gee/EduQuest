@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getNotes, getSubjects, addSubject, deleteSubject as deleteSubjectFromData } from '@/lib/data';
+import { getNotes, getSubjects, addSubject, deleteSubject as deleteSubjectFromData, deleteNote as deleteNoteFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -60,10 +60,8 @@ export default function ManageNotesPage() {
   
   const handleDeleteNote = (noteId: string) => {
      if (confirm('Are you sure you want to delete this note?')) {
-        // In a real app, you would call a function to delete the note from the backend.
-        console.log("Deleting note:", noteId);
-        // For this demo, we'll just filter it out from the local state.
-        setNotes(notes.filter(n => n.id !== noteId));
+        deleteNoteFromData(noteId);
+        setNotes(getNotes());
         toast({ title: 'Deleted', description: 'The note has been removed.'});
     }
   }
