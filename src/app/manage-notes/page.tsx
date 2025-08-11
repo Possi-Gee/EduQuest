@@ -5,16 +5,13 @@ import { useState } from 'react';
 import { getNotes, getSubjects, addSubject, deleteSubject as deleteSubjectFromData, deleteNote as deleteNoteFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from '@/components/ui/badge';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { MoreHorizontal, PlusCircle, Trash2, Library, FilePenLine } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -27,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import type { Note } from '@/lib/types';
 
 export default function ManageNotesPage() {
   const [notes, setNotes] = useState(getNotes());
@@ -35,6 +33,11 @@ export default function ManageNotesPage() {
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  
+  const notesBySubject = subjects.reduce((acc, subject) => {
+    acc[subject] = notes.filter(note => note.category === subject);
+    return acc;
+  }, {} as Record<string, Note[]>);
 
   const handleAddSubject = () => {
     if (!newSubject.trim()) {
@@ -44,15 +47,24 @@ export default function ManageNotesPage() {
     addSubject(newSubject);
     setSubjects(getSubjects());
     setNewSubject('');
+    setIsSubjectDialogOpen(false);
     toast({ title: 'Success', description: `Subject "${newSubject}" has been added.` });
   };
   
   const handleDeleteSubject = (subject: string) => {
-    // Optional: Add a check if any note is using this subject
-    if (confirm(`Are you sure you want to delete the subject "${subject}"?`)) {
+    if (confirm(`Are you sure you want to delete the subject "${subject}"? This will also delete all notes under it.`)) {
+      // First, delete all notes associated with the subject
+      const notesToDelete = notes.filter(note => note.category === subject);
+      notesToDelete.forEach(note => deleteNoteFromData(note.id));
+
+      // Then, delete the subject itself
       deleteSubjectFromData(subject);
+
+      // Update state
       setSubjects(getSubjects());
-      toast({ title: 'Deleted', description: `Subject "${subject}" has been removed.`});
+      setNotes(getNotes());
+      
+      toast({ title: 'Deleted', description: `Subject "${subject}" and all its notes have been removed.`});
     }
   }
   
@@ -65,109 +77,104 @@ export default function ManageNotesPage() {
   }
 
   const navigateToNewNote = () => {
+    if (subjects.length === 0) {
+      toast({
+        title: "No Subjects Found",
+        description: "Please add a subject before creating a note.",
+        variant: 'destructive',
+      });
+      return;
+    }
     router.push('/manage-notes/new');
   }
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Manage Notes</h1>
+        <div>
+            <h1 className="text-3xl font-bold">Manage Notes</h1>
+            <p className="text-muted-foreground">Create, edit, and organize study materials for your students.</p>
+        </div>
         <div className="flex gap-2">
-           <Dialog open={isSubjectDialogOpen} onOpenChange={setIsSubjectDialogOpen}>
+            <Dialog open={isSubjectDialogOpen} onOpenChange={setIsSubjectDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="outline">
+                    <Button>
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Manage Subjects
+                        Add Subject
                     </Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Manage Subjects</DialogTitle>
-                        <DialogDescription>Add, view, or delete subjects for your notes.</DialogDescription>
+                        <DialogTitle>Add New Subject</DialogTitle>
+                        <DialogDescription>Create a new subject to categorize your notes.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                        <div className="flex gap-2">
-                            <Input 
-                                placeholder="New subject name..." 
-                                value={newSubject}
-                                onChange={(e) => setNewSubject(e.target.value)}
-                            />
-                            <Button onClick={handleAddSubject}><PlusCircle className="h-4 w-4" /></Button>
-                        </div>
-                        <Card className="max-h-64 overflow-y-auto">
-                            <CardContent className="p-2">
-                                {subjects.length > 0 ? subjects.map(subject => (
-                                    <div key={subject} className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
-                                        <span className="text-sm">{subject}</span>
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" onClick={() => handleDeleteSubject(subject)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                )) : <p className="text-center text-sm text-muted-foreground p-4">No subjects created yet.</p>}
-                            </CardContent>
-                        </Card>
+                        <Input 
+                            placeholder="New subject name..." 
+                            value={newSubject}
+                            onChange={(e) => setNewSubject(e.target.value)}
+                        />
                     </div>
+                     <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsSubjectDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAddSubject}>Add Subject</Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <Button onClick={navigateToNewNote}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create New Note
-            </Button>
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Existing Notes</CardTitle>
-          <CardDescription>View, edit, or delete your notes.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead className="hidden md:table-cell">Category</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {notes.length > 0 ? (
-                notes.map((note) => (
-                  <TableRow key={note.id}>
-                    <TableCell className="font-medium">{note.title}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge variant="secondary">{note.category}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteNote(note.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center">
-                    No notes found. Get started by creating one.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      
+      <div className="space-y-4">
+        <Accordion type="multiple" className="w-full space-y-2">
+          {subjects.map(subject => (
+            <AccordionItem key={subject} value={subject} className="bg-card border-none rounded-lg shadow-sm">
+              <AccordionTrigger className="p-4 hover:no-underline">
+                <div className="flex items-center gap-3">
+                    <Library className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-lg">{subject}</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 pt-0">
+                <div className="space-y-2">
+                   {notesBySubject[subject]?.length > 0 ? (
+                        notesBySubject[subject].map(note => (
+                            <div key={note.id} className="flex items-center justify-between p-3 bg-card/50 rounded-md">
+                                <span className="text-sm font-medium">{note.title}</span>
+                                <div className="flex items-center gap-2">
+                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>
+                                        <FilePenLine className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" onClick={() => handleDeleteNote(note.id)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                   ) : (
+                    <p className="text-sm text-muted-foreground text-center p-4">No notes in this subject yet.</p>
+                   )}
+                   <div className="flex justify-between items-center pt-2">
+                        <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Subject
+                        </Button>
+                        <Button size="sm" onClick={navigateToNewNote}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add New Note
+                        </Button>
+                   </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+        {subjects.length === 0 && (
+             <div className="text-center text-muted-foreground py-12 bg-card rounded-lg">
+              <p>No subjects created yet.</p>
+              <p className="text-sm mt-2">Click "Add Subject" to get started.</p>
+            </div>
+        )}
+      </div>
     </div>
   );
 }
