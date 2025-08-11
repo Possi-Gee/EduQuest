@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { MoreHorizontal, PlusCircle, Trash2, Library, FilePenLine } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, Library, FilePenLine, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -141,6 +141,9 @@ export default function ManageNotesPage() {
                             <div key={note.id} className="flex items-center justify-between p-3 bg-card/50 rounded-md">
                                 <span className="text-sm font-medium">{note.title}</span>
                                 <div className="flex items-center gap-2">
+                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/notes/${note.id}`)}>
+                                        <Eye className="h-4 w-4" />
+                                    </Button>
                                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>
                                         <FilePenLine className="h-4 w-4" />
                                     </Button>
