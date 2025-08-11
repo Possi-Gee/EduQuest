@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getAnnouncements } from '@/lib/data';
+import { getAnnouncements, addAnnouncement, deleteAnnouncement as deleteAnnouncementFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,35 +24,49 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ManageAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState(getAnnouncements());
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const { toast } = useToast();
 
   const handlePostAnnouncement = () => {
     if (!title || !content) {
-      alert('Please fill out all fields.');
+      toast({
+        title: 'Missing Fields',
+        description: 'Please fill out all fields.',
+        variant: 'destructive',
+      });
       return;
     }
-    // In a real app, this would be an API call
-    const newAnnouncement = {
-      id: (announcements.length + 1).toString(),
+    
+    addAnnouncement({
       title,
       content,
       date: new Date().toISOString().split('T')[0],
-    };
-    setAnnouncements([newAnnouncement, ...announcements]);
+    });
+    
+    setAnnouncements(getAnnouncements());
     setTitle('');
     setContent('');
     setOpen(false);
+    toast({
+        title: 'Success!',
+        description: 'The announcement has been posted.',
+    });
   };
   
   const handleDelete = (id: string) => {
-    // In a real app, this would be an API call
     if (confirm('Are you sure you want to delete this announcement?')) {
-        setAnnouncements(announcements.filter(a => a.id !== id));
+        deleteAnnouncementFromData(id);
+        setAnnouncements(getAnnouncements());
+        toast({
+            title: 'Deleted',
+            description: 'The announcement has been removed.',
+        });
     }
   }
 

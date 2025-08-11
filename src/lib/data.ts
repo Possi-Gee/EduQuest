@@ -121,3 +121,19 @@ export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;
 export const getStudents = () => students;
 export const getAnnouncements = () => announcements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+export const addAnnouncement = (announcement: Omit<Announcement, 'id'>) => {
+  const newAnnouncement: Announcement = {
+    id: (Math.random() * 1000).toString(),
+    ...announcement,
+  };
+  announcements.unshift(newAnnouncement);
+  return newAnnouncement;
+};
+
+export const deleteAnnouncement = (id: string) => {
+  const index = announcements.findIndex(a => a.id === id);
+  if (index > -1) {
+    announcements.splice(index, 1);
+  }
+};
