@@ -90,6 +90,32 @@ export default function MorePage() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <GridItem href="/profile" icon={User} label="Profile" />
+         <GridItem isDialog icon={Bell} label="Notifications">
+             <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Notification Settings</DialogTitle>
+                    <DialogDescription>
+                        Manage how you receive notifications from EduQuest.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-6 pt-2">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="push-notifications" className="font-normal">
+                            <p>Push Notifications</p>
+                            <p className="text-xs text-muted-foreground">Receive updates on your device.</p>
+                        </Label>
+                        <Switch id="push-notifications" defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="email-notifications" className="font-normal">
+                            <p>Email Notifications</p>
+                            <p className="text-xs text-muted-foreground">Get summaries and alerts via email.</p>
+                        </Label>
+                        <Switch id="email-notifications" />
+                    </div>
+                </div>
+            </DialogContent>
+        </GridItem>
         <GridItem href="/about" icon={Info} label="About" />
         <GridItem isDialog icon={SettingsIcon} label="Settings">
             <DialogContent>
