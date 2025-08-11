@@ -8,8 +8,8 @@ import { BarChart, Users, FileText, Activity } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis } from "recharts"
 import { useEffect, useState } from 'react';
-import { getStudents } from '@/lib/data';
-import type { Student } from '@/lib/types';
+import { getStudents, getQuizzes } from '@/lib/data';
+import type { Student, Quiz } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -42,16 +42,26 @@ const recentActivity = [
 
 export default function DashboardPage() {
     const [students, setStudents] = useState<Student[]>([]);
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStudents = async () => {
-            const fetchedStudents = await getStudents();
+        const fetchData = async () => {
+            setLoading(true);
+            const [fetchedStudents, fetchedQuizzes] = await Promise.all([
+                getStudents(),
+                getQuizzes()
+            ]);
             setStudents(fetchedStudents);
+            setQuizzes(fetchedQuizzes);
             setLoading(false);
         }
-        fetchStudents();
+        fetchData();
     }, []);
+
+    const averageScore = students.length > 0 
+      ? Math.round(students.reduce((acc, student) => acc + student.averageScore, 0) / students.length)
+      : 0;
 
 
   return (
@@ -81,8 +91,14 @@ export default function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+5 since last week</p>
+             {loading ? (
+                <Skeleton className="h-8 w-2/4" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{quizzes.length}</div>
+                    <p className="text-xs text-muted-foreground">+5 since last week</p>
+                </>
+             )}
           </CardContent>
         </Card>
         <Card className="lg:col-span-1">
@@ -91,8 +107,14 @@ export default function DashboardPage() {
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">82%</div>
-            <p className="text-xs text-muted-foreground">Stable since last month</p>
+             {loading ? (
+                <Skeleton className="h-8 w-2/4" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{averageScore}%</div>
+                    <p className="text-xs text-muted-foreground">Across all students</p>
+                </>
+             )}
           </CardContent>
         </Card>
       </div>
@@ -131,7 +153,13 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {recentActivity.map((activity, index) => (
+                    {loading ? (
+                        <>
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                        </>
+                    ) : recentActivity.map((activity, index) => (
                         <div key={index} className="flex items-start gap-4">
                             <Activity className="h-5 w-5 text-muted-foreground mt-1" />
                             <div>
