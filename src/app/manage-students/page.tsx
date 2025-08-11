@@ -1,11 +1,12 @@
 
 'use client';
 
-import { getStudents } from '@/lib/data';
+import { useState } from 'react';
+import { getStudents, deleteStudent as deleteStudentFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, BarChart2 } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +15,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ManageStudentsPage() {
-  const students = getStudents();
+  const [students, setStudents] = useState(getStudents());
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleRemoveStudent = (studentId: string) => {
+    if (confirm('Are you sure you want to remove this student?')) {
+      deleteStudentFromData(studentId);
+      setStudents(getStudents()); // Re-fetch the updated list
+      toast({
+        title: 'Student Removed',
+        description: 'The student has been successfully removed from the class.',
+      });
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
@@ -80,9 +95,14 @@ export default function ManageStudentsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Profile</DropdownMenuItem>
-                          <DropdownMenuItem>View Progress</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Remove Student</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push('/profile')}>View Profile</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => alert('Viewing progress is not yet implemented.')}>View Progress</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onClick={() => handleRemoveStudent(student.id)}
+                          >
+                            Remove Student
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -91,7 +111,7 @@ export default function ManageStudentsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
-                    No students found. Add a student to get started.
+                    No students found.
                   </TableCell>
                 </TableRow>
               )}

@@ -91,7 +91,7 @@ export const quizzes: Quiz[] = [
   },
 ];
 
-export const students: Student[] = [
+let students: Student[] = [
   { id: '1', name: 'John Doe', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 5, averageScore: 85 },
   { id: '2', name: 'Jane Smith', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 8, averageScore: 92 },
   { id: '3', name: 'Sam Wilson', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 3, averageScore: 78 },
@@ -141,6 +141,9 @@ export const getQuizzes = () => quizzes;
 export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;
 export const getStudents = () => students;
+export const deleteStudent = (id: string) => {
+  students = students.filter(student => student.id !== id);
+};
 export const getAnnouncements = () => announcements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 export const addAnnouncement = (announcement: Omit<Announcement, 'id'>) => {
