@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getStudents, deleteStudent as deleteStudentFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,20 +19,42 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import type { Student } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ManageStudentsPage() {
-  const [students, setStudents] = useState(getStudents());
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
+  
+  const fetchStudents = async () => {
+      setLoading(true);
+      const fetchedStudents = await getStudents();
+      setStudents(fetchedStudents);
+      setLoading(false);
+  };
 
-  const handleRemoveStudent = (studentId: string) => {
-    if (confirm('Are you sure you want to remove this student?')) {
-      deleteStudentFromData(studentId);
-      setStudents(getStudents()); // Re-fetch the updated list
-      toast({
-        title: 'Student Removed',
-        description: 'The student has been successfully removed from the class.',
-      });
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const handleRemoveStudent = async (studentId: string, studentName: string) => {
+    if (confirm(`Are you sure you want to remove ${studentName}?`)) {
+      try {
+        await deleteStudentFromData(studentId);
+        await fetchStudents(); // Re-fetch the updated list
+        toast({
+            title: 'Student Removed',
+            description: `${studentName} has been successfully removed from the class.`,
+        });
+      } catch (error) {
+        toast({
+            title: 'Error',
+            description: `Failed to remove ${studentName}.`,
+            variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -60,7 +82,21 @@ export default function ManageStudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {students.length > 0 ? (
+              {loading ? (
+                 Array.from({length: 4}).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <Skeleton className="h-9 w-9 rounded-full" />
+                                <Skeleton className="h-5 w-24" />
+                            </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-center"><Skeleton className="h-5 w-8 mx-auto" /></TableCell>
+                        <TableCell className="hidden md:table-cell text-center"><Skeleton className="h-5 w-12 mx-auto" /></TableCell>
+                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                 ))
+              ) : students.length > 0 ? (
                 students.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">
@@ -99,7 +135,7 @@ export default function ManageStudentsPage() {
                           <DropdownMenuItem onClick={() => alert('Viewing progress is not yet implemented.')}>View Progress</DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                            onClick={() => handleRemoveStudent(student.id)}
+                            onClick={() => handleRemoveStudent(student.id, student.name)}
                           >
                             Remove Student
                           </DropdownMenuItem>

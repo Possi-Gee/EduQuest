@@ -1,16 +1,16 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Trash2, Sparkles } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { QuizQuestion } from '@/lib/types';
-import { getNotes, getSubjects } from '@/lib/data';
+import type { QuizQuestion, Note } from '@/lib/types';
+import { getNotes, getSubjects, addQuiz } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { generateQuiz } from '@/ai/flows/generate-quiz-flow';
@@ -18,9 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 
 export default function NewQuizPage() {
   const router = useRouter();
-  const notes = getNotes();
-  const existingCategories = getSubjects();
   const { toast } = useToast();
+  
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
@@ -29,11 +30,21 @@ export default function NewQuizPage() {
     { question: '', options: ['', '', '', ''], answerIndex: 0 },
   ]);
 
+  const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationSource, setGenerationSource] = useState<'topic' | 'note'>('topic');
   const [generationTopic, setGenerationTopic] = useState('');
   const [generationNoteId, setGenerationNoteId] = useState('');
   const [numQuestions, setNumQuestions] = useState(4);
+  
+  useEffect(() => {
+      const fetchData = async () => {
+          const [fetchedNotes, fetchedSubjects] = await Promise.all([getNotes(), getSubjects()]);
+          setNotes(fetchedNotes);
+          setExistingCategories(fetchedSubjects);
+      };
+      fetchData();
+  }, []);
 
 
   const handleQuestionChange = (index: number, value: string) => {
@@ -66,18 +77,25 @@ export default function NewQuizPage() {
         const newQuestions = questions.filter((_, i) => i !== index);
         setQuestions(newQuestions);
     } else {
-        alert("A quiz must have at least one question.");
+        toast({title: "Error", description: "A quiz must have at least one question.", variant: "destructive"});
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title || !category || questions.some(q => !q.question || q.options.some(o => !o))) {
-        alert('Please fill out all fields.');
+        toast({title: 'Missing Fields', description: 'Please fill out all fields.', variant: 'destructive'});
         return;
     }
-    console.log('Saving quiz:', { title, category, timeLimit, questions });
-    alert('Quiz saved successfully! (Check console)');
-    router.push('/manage-quizzes');
+    setIsSaving(true);
+    try {
+        await addQuiz({ title, category, timeLimit, questions });
+        toast({title: 'Success!', description: 'Quiz saved successfully!'});
+        router.push('/manage-quizzes');
+    } catch(error) {
+        toast({title: 'Save Failed', description: 'Could not save the quiz.', variant: 'destructive'});
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   const handleGenerateQuiz = async () => {
@@ -112,6 +130,7 @@ export default function NewQuizPage() {
           });
           setTitle(result.title);
           setQuestions(result.questions);
+          toast({title: "Quiz Generated!", description: "Review the generated quiz below."})
       } catch (error) {
           console.error("Error generating quiz:", error);
           toast({ title: 'Generation Failed', description: 'There was an error generating the quiz.', variant: 'destructive' });
@@ -132,6 +151,19 @@ export default function NewQuizPage() {
           <CardDescription>Generate a quiz automatically based on a topic or an existing note.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="generation-category">Subject (Category)</Label>
+                <Select onValueChange={setCategory} value={category}>
+                    <SelectTrigger id="generation-category">
+                        <SelectValue placeholder="Select a subject first" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {existingCategories.map(cat => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
            <RadioGroup value={generationSource} onValueChange={(v) => setGenerationSource(v as 'topic' | 'note')} className="flex gap-4">
               <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
                 <RadioGroupItem value="topic" id="topic" />
@@ -165,7 +197,7 @@ export default function NewQuizPage() {
             </div>
 
             <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
-              <Sparkles className="mr-2 h-4 w-4" />
+              {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
               {isGenerating ? 'Generating Quiz...' : 'Generate with AI'}
             </Button>
         </CardContent>
@@ -234,12 +266,13 @@ export default function NewQuizPage() {
           
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => router.push('/manage-quizzes')}>Cancel</Button>
-            <Button onClick={handleSave}>Save Quiz</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Quiz
+            </Button>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    

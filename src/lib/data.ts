@@ -1,183 +1,184 @@
 
-import type { Note, Quiz, User, Student, Announcement } from './types';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
+import { db } from './firebase';
+import type { Note, Quiz, UserData, Student, Announcement } from './types';
+import { getAuth } from 'firebase/auth';
 
-export const user: User = {
-  name: 'Alex',
-  avatarUrl: 'https://placehold.co/100x100.png',
-  quizHistory: [
-    { quizId: '1', quizTitle: 'History of Ancient Rome', score: 8, total: 10, date: '2024-05-10' },
-    { quizId: '2', quizTitle: 'Introduction to Algebra', score: 9, total: 10, date: '2024-05-12' },
-  ],
+// --- Notes ---
+export const getNotes = async (): Promise<Note[]> => {
+    const notesCol = collection(db, 'notes');
+    const noteSnapshot = await getDocs(notesCol);
+    const noteList = noteSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Note));
+    return noteList;
 };
 
-let notes: Note[] = [
-  {
-    id: '1',
-    category: 'History',
-    title: 'The Roman Republic',
-    content: 'The Roman Republic was the era of classical Roman civilization, beginning with the overthrow of the Roman Kingdom, traditionally dated to 509 BC, and ending in 27 BC with the establishment of the Roman Empire. It was during this period that Rome expanded from a small city-state to a vast empire.',
-  },
-  {
-    id: '2',
-    category: 'History',
-    title: 'The Renaissance',
-    content: 'The Renaissance was a period in European history, from the 14th to the 17th century, regarded as the cultural bridge between the Middle Ages and modern history. It started as a cultural movement in Italy in the Late Medieval period and later spread to the rest of Europe.',
-  },
-  {
-    id: '3',
-    category: 'Science',
-    title: 'The Theory of Relativity',
-    content: "Einstein's theory of relativity is a cornerstone of modern physics. It is divided into two parts: special relativity and general relativity. Special relativity deals with the relationship between space and time for objects moving at constant speeds, while general relativity is a theory of gravitation.",
-  },
-  {
-    id: '4',
-    category: 'Science',
-    title: 'Photosynthesis',
-    content: 'Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy, through a process that converts carbon dioxide and water into glucose (sugar) and oxygen. This process is essential for life on Earth.',
-  },
-];
-
-export const quizzes: Quiz[] = [
-  {
-    id: '1',
-    title: 'History of Ancient Rome',
-    category: 'History',
-    timeLimit: 600, // 10 minutes
-    questions: [
-      {
-        question: 'When was Rome founded?',
-        options: ['753 BC', '509 BC', '44 BC', '27 BC'],
-        answerIndex: 0,
-      },
-      {
-        question: 'Who was the first Emperor of Rome?',
-        options: ['Julius Caesar', 'Augustus', 'Nero', 'Constantine'],
-        answerIndex: 1,
-      },
-      {
-        question: 'The Punic Wars were fought between Rome and which other power?',
-        options: ['Greece', 'Persia', 'Carthage', 'Egypt'],
-        answerIndex: 2,
-      },
-       {
-        question: 'What material did the Romans famously use in construction?',
-        options: ['Steel', 'Concrete', 'Wood', 'Bronze'],
-        answerIndex: 1,
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Introduction to Algebra',
-    category: 'Math',
-    timeLimit: 300, // 5 minutes
-    questions: [
-      {
-        question: 'What is the value of x in the equation 2x + 3 = 7?',
-        options: ['1', '2', '3', '4'],
-        answerIndex: 1,
-      },
-      {
-        question: 'What is (a + b)^2?',
-        options: ['a^2 + b^2', 'a^2 + 2ab + b^2', 'a^2 - 2ab + b^2', 'a + b + 2'],
-        answerIndex: 1,
-      },
-       {
-        question: 'Simplify the expression: 3(x + 4) - 2x',
-        options: ['x + 12', '5x + 12', 'x - 12', 'x + 4'],
-        answerIndex: 0,
-      },
-    ],
-  },
-];
-
-let students: Student[] = [
-  { id: '1', name: 'John Doe', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 5, averageScore: 85 },
-  { id: '2', name: 'Jane Smith', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 8, averageScore: 92 },
-  { id: '3', name: 'Sam Wilson', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 3, averageScore: 78 },
-  { id: '4', name: 'Lisa Ray', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 10, averageScore: 88 },
-];
-
-export const announcements: Announcement[] = [
-  {
-    id: '1',
-    title: 'Welcome Back!',
-    content: 'Welcome back to the new semester! We have a lot of exciting things planned. Make sure to check the quiz schedule.',
-    date: '2024-08-01',
-  },
-  {
-    id: '2',
-    title: 'Mid-term Quizzes Coming Up',
-    content: 'Just a reminder that mid-term quizzes will be held next week. Good luck studying!',
-    date: '2024-07-25',
-  }
-];
-
-// Combine all subjects/categories from notes and quizzes into one list
-let subjects = [...new Set([...notes.map(n => n.category), ...quizzes.map(q => q.category)])];
-
-// Helper functions to get data
-export const getNotes = () => notes;
-export const getNoteById = (id: string) => notes.find(note => note.id === id);
-export const deleteNote = (id: string) => {
-  notes = notes.filter(note => note.id !== id);
-};
-export const addNote = (note: Omit<Note, 'id'>) => {
-    const newNote: Note = {
-        id: Date.now().toString(),
-        ...note,
-    };
-    notes.unshift(newNote);
-    return newNote;
-};
-export const updateNote = (id: string, updatedNote: Partial<Omit<Note, 'id'>>) => {
-    const noteIndex = notes.findIndex(n => n.id === id);
-    if (noteIndex > -1) {
-        notes[noteIndex] = { ...notes[noteIndex], ...updatedNote };
+export const getNoteById = async (id: string): Promise<Note | null> => {
+    const noteRef = doc(db, 'notes', id);
+    const noteSnap = await getDoc(noteRef);
+    if (noteSnap.exists()) {
+        return { id: noteSnap.id, ...noteSnap.data() } as Note;
+    } else {
+        return null;
     }
 };
 
-export const getQuizzes = () => quizzes;
-export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
-export const getUser = () => user;
-export const getStudents = () => students;
-export const deleteStudent = (id: string) => {
-  students = students.filter(student => student.id !== id);
-};
-export const getAnnouncements = () => announcements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-export const addAnnouncement = (announcement: Omit<Announcement, 'id'>) => {
-  const newAnnouncement: Announcement = {
-    id: (Math.random() * 1000).toString(),
-    ...announcement,
-  };
-  announcements.unshift(newAnnouncement);
-  return newAnnouncement;
+export const addNote = async (note: Omit<Note, 'id'>): Promise<string> => {
+    const docRef = await addDoc(collection(db, 'notes'), note);
+    return docRef.id;
 };
 
-export const deleteAnnouncement = (id: string) => {
-  const index = announcements.findIndex(a => a.id === id);
-  if (index > -1) {
-    announcements.splice(index, 1);
-  }
+export const updateNote = async (id: string, updatedNote: Partial<Omit<Note, 'id'>>): Promise<void> => {
+    const noteRef = doc(db, 'notes', id);
+    await updateDoc(noteRef, updatedNote);
 };
 
-export const markAnnouncementsAsRead = () => {
-    const allIds = getAnnouncements().map(a => a.id);
+export const deleteNote = async (id: string): Promise<void> => {
+    const noteRef = doc(db, 'notes', id);
+    await deleteDoc(noteRef);
+};
+
+
+// --- Quizzes ---
+export const getQuizzes = async (): Promise<Quiz[]> => {
+    const quizzesCol = collection(db, 'quizzes');
+    const quizSnapshot = await getDocs(quizzesCol);
+    const quizList = quizSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Quiz));
+    return quizList;
+};
+
+export const getQuizById = async (id: string): Promise<Quiz | null> => {
+    const quizRef = doc(db, 'quizzes', id);
+    const quizSnap = await getDoc(quizRef);
+    if (quizSnap.exists()) {
+        return { id: quizSnap.id, ...quizSnap.data() } as Quiz;
+    } else {
+        return null;
+    }
+};
+
+export const addQuiz = async (quiz: Omit<Quiz, 'id'>): Promise<string> => {
+    const docRef = await addDoc(collection(db, 'quizzes'), quiz);
+    return docRef.id;
+};
+
+export const updateQuiz = async (id: string, updatedQuiz: Partial<Omit<Quiz, 'id'>>): Promise<void> => {
+    const quizRef = doc(db, 'quizzes', id);
+    await updateDoc(quizRef, updatedQuiz);
+};
+
+export const deleteQuiz = async (id: string): Promise<void> => {
+    const quizRef = doc(db, 'quizzes', id);
+    await deleteDoc(quizRef);
+};
+
+
+// --- User & Students ---
+export const getUser = async (): Promise<UserData> => {
+    // This is a placeholder. In a real app, you'd fetch this from your 'users' collection
+    // based on the authenticated user's ID.
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    return {
+        name: currentUser?.displayName || 'Student',
+        avatarUrl: currentUser?.photoURL || `https://placehold.co/100x100.png?text=${currentUser?.displayName?.charAt(0)}`,
+        quizHistory: [], // Placeholder
+    };
+};
+
+export const getStudents = async (): Promise<Student[]> => {
+    // Fetches documents from the 'users' collection where role is 'student'
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("role", "==", "student"));
+    const querySnapshot = await getDocs(q);
+    const studentList = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            name: data.name,
+            avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
+            quizzesTaken: 0, // Placeholder data
+            averageScore: 0, // Placeholder data
+        } as Student;
+    });
+    return studentList;
+};
+
+export const deleteStudent = async (id: string): Promise<void> => {
+    // Note: This deletes the user's record from your 'users' collection.
+    // It does NOT delete their Firebase Auth account. That requires a backend function.
+    const studentRef = doc(db, 'users', id);
+    await deleteDoc(studentRef);
+};
+
+
+// --- Announcements ---
+export const getAnnouncements = async (): Promise<Announcement[]> => {
+    const announcementsCol = collection(db, 'announcements');
+    const announcementSnapshot = await getDocs(announcementsCol);
+    const announcementList = announcementSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement));
+    // Sort by date descending
+    return announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+};
+
+export const addAnnouncement = async (announcement: Omit<Announcement, 'id'>): Promise<string> => {
+    const docRef = await addDoc(collection(db, 'announcements'), announcement);
+    return docRef.id;
+};
+
+export const deleteAnnouncement = async (id: string): Promise<void> => {
+    const announcementRef = doc(db, 'announcements', id);
+    await deleteDoc(announcementRef);
+};
+
+export const markAnnouncementsAsRead = async () => {
+    // This function remains client-side as it deals with localStorage
+    const announcements = await getAnnouncements();
+    const allIds = announcements.map(a => a.id);
     if (typeof window !== 'undefined') {
         localStorage.setItem('readAnnouncementIds', JSON.stringify(allIds));
     }
-    return allIds;
-}
+};
 
-// Subject management
-export const getSubjects = () => [...subjects].sort();
-export const addSubject = (subject: string) => {
-  if (!subjects.find(s => s.toLowerCase() === subject.toLowerCase())) {
-    subjects.push(subject);
-  }
-}
-export const deleteSubject = (subject: string) => {
-  subjects = subjects.filter(s => s !== subject);
-  // Optional: Decide if you want to also remove the category from existing notes/quizzes
-}
+// --- Subjects (Categories) ---
+// Subjects are derived from notes and quizzes, so we'll get them from those collections.
+export const getSubjects = async (): Promise<string[]> => {
+    const notesPromise = getNotes();
+    const quizzesPromise = getQuizzes();
+    const [notes, quizzes] = await Promise.all([notesPromise, quizzesPromise]);
+    const subjects = new Set([...notes.map(n => n.category), ...quizzes.map(q => q.category)]);
+    return [...subjects].sort();
+};
+
+export const addSubject = async (subject: string): Promise<void> => {
+    // Subjects are not a separate collection. They are just fields in notes/quizzes.
+    // To "add" a subject, you create a note or quiz with that category.
+    // This function could add a placeholder document to a 'subjects' collection if needed,
+    // but based on the current setup, it's not necessary. We'll leave this as a no-op
+    // for now, but the UI calls it, so the function needs to exist.
+    console.log(`A new subject "${subject}" will be available once a note or quiz is added to it.`);
+};
+
+export const deleteSubject = async (subject: string): Promise<void> => {
+    // This is a complex operation. It requires deleting all notes and quizzes with the subject.
+    // A batch write is the most efficient way to do this.
+    const batch = writeBatch(db);
+
+    // Find all notes with the subject and add delete operations to the batch
+    const notesRef = collection(db, "notes");
+    const notesQuery = query(notesRef, where("category", "==", subject));
+    const notesSnapshot = await getDocs(notesQuery);
+    notesSnapshot.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+
+    // Find all quizzes with the subject and add delete operations to the batch
+    const quizzesRef = collection(db, "quizzes");
+    const quizzesQuery = query(quizzesRef, where("category", "==", subject));
+    const quizzesSnapshot = await getDocs(quizzesQuery);
+    quizzesSnapshot.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+
+    // Commit the batch
+    await batch.commit();
+};

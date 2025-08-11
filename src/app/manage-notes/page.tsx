@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getNotes, getSubjects, addSubject, deleteSubject as deleteSubjectFromData, deleteNote as deleteNoteFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { MoreHorizontal, PlusCircle, Trash2, Library, FilePenLine, Eye } from 'lucide-react';
+import { PlusCircle, Trash2, Library, FilePenLine, Eye, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -25,54 +25,81 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 export default function ManageNotesPage() {
-  const [notes, setNotes] = useState(getNotes());
-  const [subjects, setSubjects] = useState(getSubjects());
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
   const [newSubject, setNewSubject] = useState('');
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+        const [fetchedNotes, fetchedSubjects] = await Promise.all([getNotes(), getSubjects()]);
+        setNotes(fetchedNotes);
+        setSubjects(fetchedSubjects);
+    } catch(error) {
+        toast({ title: 'Error', description: 'Failed to load notes and subjects.', variant: 'destructive'});
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
   
   const notesBySubject = subjects.reduce((acc, subject) => {
     acc[subject] = notes.filter(note => note.category === subject);
     return acc;
   }, {} as Record<string, Note[]>);
 
-  const handleAddSubject = () => {
+  const handleAddSubject = async () => {
     if (!newSubject.trim()) {
       toast({ title: 'Error', description: 'Subject name cannot be empty.', variant: 'destructive' });
       return;
     }
-    addSubject(newSubject);
-    setSubjects(getSubjects());
-    setNewSubject('');
-    setIsSubjectDialogOpen(false);
-    toast({ title: 'Success', description: `Subject "${newSubject}" has been added.` });
+    setIsSubmitting(true);
+    try {
+        await addSubject(newSubject);
+        await fetchData(); // Refetch all data
+        setNewSubject('');
+        setIsSubjectDialogOpen(false);
+        toast({ title: 'Success', description: `Subject "${newSubject}" has been added.` });
+    } catch(error) {
+         toast({ title: 'Error', description: 'Failed to add subject.', variant: 'destructive'});
+    } finally {
+        setIsSubmitting(false);
+    }
   };
   
-  const handleDeleteSubject = (subject: string) => {
+  const handleDeleteSubject = async (subject: string) => {
     if (confirm(`Are you sure you want to delete the subject "${subject}"? This will also delete all notes under it.`)) {
-      // First, delete all notes associated with the subject
-      const notesToDelete = notes.filter(note => note.category === subject);
-      notesToDelete.forEach(note => deleteNoteFromData(note.id));
-
-      // Then, delete the subject itself
-      deleteSubjectFromData(subject);
-
-      // Update state
-      setSubjects(getSubjects());
-      setNotes(getNotes());
-      
-      toast({ title: 'Deleted', description: `Subject "${subject}" and all its notes have been removed.`});
+      try {
+        await deleteSubjectFromData(subject);
+        await fetchData(); // Refetch all data
+        toast({ title: 'Deleted', description: `Subject "${subject}" and all its notes have been removed.`});
+      } catch (error) {
+        toast({ title: 'Error', description: `Failed to delete subject "${subject}".`, variant: 'destructive'});
+      }
     }
   }
   
-  const handleDeleteNote = (noteId: string) => {
+  const handleDeleteNote = async (noteId: string) => {
      if (confirm('Are you sure you want to delete this note?')) {
-        deleteNoteFromData(noteId);
-        setNotes(getNotes());
-        toast({ title: 'Deleted', description: 'The note has been removed.'});
+        try {
+            await deleteNoteFromData(noteId);
+            await fetchData(); // Refetch notes
+            toast({ title: 'Deleted', description: 'The note has been removed.'});
+        } catch(error) {
+            toast({ title: 'Error', description: 'Failed to delete note.', variant: 'destructive'});
+        }
     }
   }
 
@@ -87,6 +114,14 @@ export default function ManageNotesPage() {
     }
     router.push('/manage-notes/new');
   }
+  
+  const LoadingSkeleton = () => (
+    <div className="space-y-2">
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+    </div>
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
@@ -113,11 +148,15 @@ export default function ManageNotesPage() {
                             placeholder="New subject name..." 
                             value={newSubject}
                             onChange={(e) => setNewSubject(e.target.value)}
+                            disabled={isSubmitting}
                         />
                     </div>
                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsSubjectDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleAddSubject}>Add Subject</Button>
+                        <Button variant="outline" onClick={() => setIsSubjectDialogOpen(false)} disabled={isSubmitting}>Cancel</Button>
+                        <Button onClick={handleAddSubject} disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Add Subject
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -125,53 +164,55 @@ export default function ManageNotesPage() {
       </div>
       
       <div className="space-y-4">
-        <Accordion type="multiple" className="w-full space-y-2">
-          {subjects.map(subject => (
-            <AccordionItem key={subject} value={subject} className="bg-card border-none rounded-lg shadow-sm">
-              <AccordionTrigger className="p-4 hover:no-underline">
-                <div className="flex items-center gap-3">
-                    <Library className="h-5 w-5 text-primary" />
-                    <span className="font-semibold text-lg">{subject}</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="p-4 pt-0">
-                <div className="space-y-2">
-                   {notesBySubject[subject]?.length > 0 ? (
-                        notesBySubject[subject].map(note => (
-                            <div key={note.id} className="flex items-center justify-between p-3 bg-card/50 rounded-md">
-                                <span className="text-sm font-medium">{note.title}</span>
-                                <div className="flex items-center gap-2">
-                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/notes/${note.id}`)}>
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>
-                                        <FilePenLine className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" onClick={() => handleDeleteNote(note.id)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+        {loading ? <LoadingSkeleton /> : (
+            <Accordion type="multiple" className="w-full space-y-2">
+            {subjects.map(subject => (
+                <AccordionItem key={subject} value={subject} className="bg-card border-none rounded-lg shadow-sm">
+                <AccordionTrigger className="p-4 hover:no-underline">
+                    <div className="flex items-center gap-3">
+                        <Library className="h-5 w-5 text-primary" />
+                        <span className="font-semibold text-lg">{subject}</span>
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-4 pt-0">
+                    <div className="space-y-2">
+                    {notesBySubject[subject]?.length > 0 ? (
+                            notesBySubject[subject].map(note => (
+                                <div key={note.id} className="flex items-center justify-between p-3 bg-card/50 rounded-md">
+                                    <span className="text-sm font-medium">{note.title}</span>
+                                    <div className="flex items-center gap-2">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/notes/${note.id}`)}>
+                                            <Eye className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" onClick={() => handleDeleteNote(note.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))
-                   ) : (
-                    <p className="text-sm text-muted-foreground text-center p-4">No notes in this subject yet.</p>
-                   )}
-                   <div className="flex justify-between items-center pt-2">
-                        <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject)}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Subject
-                        </Button>
-                        <Button size="sm" onClick={navigateToNewNote}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add New Note
-                        </Button>
-                   </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-        {subjects.length === 0 && (
+                            ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center p-4">No notes in this subject yet.</p>
+                    )}
+                    <div className="flex justify-between items-center pt-2">
+                            <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject)}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Subject
+                            </Button>
+                            <Button size="sm" onClick={navigateToNewNote}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add New Note
+                            </Button>
+                    </div>
+                    </div>
+                </AccordionContent>
+                </AccordionItem>
+            ))}
+            </Accordion>
+        )}
+        {!loading && subjects.length === 0 && (
              <div className="text-center text-muted-foreground py-12 bg-card rounded-lg">
               <p>No subjects created yet.</p>
               <p className="text-sm mt-2">Click "Add Subject" to get started.</p>

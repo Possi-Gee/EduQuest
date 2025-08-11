@@ -6,15 +6,51 @@ import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { use } from 'react';
+import { useEffect, useState } from 'react';
+import type { Note } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function NoteDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = use(params);
-  const note = getNoteById(id);
+  const { id } = params;
+  const [note, setNote] = useState<Note | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNote = async () => {
+      setLoading(true);
+      const fetchedNote = await getNoteById(id);
+      if (!fetchedNote) {
+        notFound();
+      } else {
+        setNote(fetchedNote);
+        setLoading(false);
+      }
+    };
+    fetchNote();
+  }, [id]);
+
+  if (loading) {
+     return (
+        <div className="space-y-6 animate-in fade-in-50">
+            <Skeleton className="h-10 w-10" />
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-4 w-1/4" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-2/3" />
+                </CardContent>
+            </Card>
+        </div>
+     );
+  }
 
   if (!note) {
-    notFound();
+    return null; // notFound() should have been called
   }
 
   return (
@@ -28,7 +64,9 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
           <CardDescription>{note.category}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-base leading-relaxed text-foreground/90">{note.content}</p>
+          <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground/90 whitespace-pre-wrap">
+            {note.content}
+          </div>
         </CardContent>
       </Card>
     </div>

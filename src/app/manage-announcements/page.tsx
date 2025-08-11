@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAnnouncements, addAnnouncement, deleteAnnouncement as deleteAnnouncementFromData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,17 +23,32 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { Announcement } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ManageAnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState(getAnnouncements());
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const { toast } = useToast();
 
-  const handlePostAnnouncement = () => {
+  const fetchAnnouncements = async () => {
+      setLoading(true);
+      const fetchedAnnouncements = await getAnnouncements();
+      setAnnouncements(fetchedAnnouncements);
+      setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const handlePostAnnouncement = async () => {
     if (!title || !content) {
       toast({
         title: 'Missing Fields',
@@ -43,30 +58,41 @@ export default function ManageAnnouncementsPage() {
       return;
     }
     
-    addAnnouncement({
-      title,
-      content,
-      date: new Date().toISOString().split('T')[0],
-    });
-    
-    setAnnouncements(getAnnouncements());
-    setTitle('');
-    setContent('');
-    setOpen(false);
-    toast({
-        title: 'Success!',
-        description: 'The announcement has been posted.',
-    });
+    setIsSubmitting(true);
+    try {
+        await addAnnouncement({
+          title,
+          content,
+          date: new Date().toISOString().split('T')[0],
+        });
+        
+        await fetchAnnouncements();
+        setTitle('');
+        setContent('');
+        setOpen(false);
+        toast({
+            title: 'Success!',
+            description: 'The announcement has been posted.',
+        });
+    } catch(error) {
+        toast({ title: 'Error', description: 'Failed to post announcement.', variant: 'destructive'});
+    } finally {
+        setIsSubmitting(false);
+    }
   };
   
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this announcement?')) {
-        deleteAnnouncementFromData(id);
-        setAnnouncements(getAnnouncements());
-        toast({
-            title: 'Deleted',
-            description: 'The announcement has been removed.',
-        });
+        try {
+            await deleteAnnouncementFromData(id);
+            await fetchAnnouncements();
+            toast({
+                title: 'Deleted',
+                description: 'The announcement has been removed.',
+            });
+        } catch (error) {
+             toast({ title: 'Error', description: 'Failed to delete announcement.', variant: 'destructive'});
+        }
     }
   }
 
@@ -98,6 +124,7 @@ export default function ManageAnnouncementsPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="col-span-3"
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="grid grid-cols-4 items-start gap-4">
@@ -109,11 +136,13 @@ export default function ManageAnnouncementsPage() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="col-span-3 min-h-[100px]"
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={handlePostAnnouncement}>
+              <Button type="submit" onClick={handlePostAnnouncement} disabled={isSubmitting}>
+                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Post Announcement
               </Button>
             </DialogFooter>
@@ -129,7 +158,12 @@ export default function ManageAnnouncementsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {announcements.length > 0 ? (
+          {loading ? (
+            <div className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+          ) : announcements.length > 0 ? (
             announcements.map((announcement) => (
               <Card key={announcement.id} className="bg-card/50">
                 <CardContent className="p-4 flex items-start justify-between">

@@ -15,25 +15,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { cn } from '@/lib/utils';
+import type { Quiz, UserData } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
+export default function QuizPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = use(params);
-  const quiz = getQuizById(id);
-  const user = getUser();
+  const { id } = params;
+  
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const certificateRef = useRef<HTMLDivElement>(null);
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(quiz?.timeLimit ?? 0);
+  const [timeLeft, setTimeLeft] = useState(0);
 
+  useEffect(() => {
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [fetchedQuiz, fetchedUser] = await Promise.all([
+                getQuizById(id),
+                getUser()
+            ]);
+            if (!fetchedQuiz) {
+                notFound();
+            } else {
+                setQuiz(fetchedQuiz);
+                setUser(fetchedUser);
+                setTimeLeft(fetchedQuiz.timeLimit);
+                setLoading(false);
+            }
+        } catch(e) {
+            notFound();
+        }
+    }
+    fetchData();
+  }, [id]);
+  
   const finishQuiz = () => {
     if (!quiz) return;
     let calculatedScore = 0;
     quiz.questions.forEach((question, index) => {
-      // Use selectedAnswers[index] ?? -1 to avoid issues with unanswered questions
       if (selectedAnswers[index] === question.answerIndex) {
         calculatedScore++;
       }
@@ -43,7 +70,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   };
 
   useEffect(() => {
-    if (!quiz || isFinished) return;
+    if (!quiz || isFinished || loading) return;
 
     if (timeLeft <= 0) {
       finishQuiz();
@@ -56,11 +83,36 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isFinished, quiz]);
+  }, [timeLeft, isFinished, quiz, loading]);
 
 
-  if (!quiz) {
-    notFound();
+  if (loading) {
+    return (
+        <div className="max-w-2xl mx-auto space-y-6">
+            <Skeleton className="h-10 w-10" />
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-7 w-3/4" />
+                    <Skeleton className="h-4 w-1/4 mt-2" />
+                    <Skeleton className="h-4 w-full mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <Skeleton className="h-6 w-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
+
+  if (!quiz || !user) {
+    return null;
   }
 
   const handleAnswerSelect = (answerIndex: number) => {

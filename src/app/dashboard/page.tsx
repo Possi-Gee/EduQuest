@@ -7,6 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart, Users, FileText, Activity } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis } from "recharts"
+import { useEffect, useState } from 'react';
+import { getStudents } from '@/lib/data';
+import type { Student } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
@@ -36,6 +41,19 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
+    const [students, setStudents] = useState<Student[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStudents = async () => {
+            const fetchedStudents = await getStudents();
+            setStudents(fetchedStudents);
+            setLoading(false);
+        }
+        fetchStudents();
+    }, []);
+
+
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
@@ -47,8 +65,14 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">250</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            {loading ? (
+                <Skeleton className="h-8 w-2/4" />
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{students.length}</div>
+                    <p className="text-xs text-muted-foreground">+2 since last month</p>
+                </>
+            )}
           </CardContent>
         </Card>
         <Card>

@@ -5,17 +5,19 @@ import { getAnnouncements, markAnnouncementsAsRead } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, ClipboardCheck, Settings, Bell } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Settings, Bell, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import type { Announcement } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const { user, userRole } = useAuth();
-  const allAnnouncements = getAnnouncements();
+  const [loading, setLoading] = useState(true);
   const [hasUnread, setHasUnread] = useState(false);
-  const [announcements, setAnnouncements] = useState(allAnnouncements);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const router = useRouter();
   
   useEffect(() => {
@@ -24,13 +26,23 @@ export default function Home() {
         return;
     }
     
-    // In a real app, you'd fetch read status from a user-specific store.
-    // For this demo, we'll use localStorage.
-    const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
-    const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
-    setHasUnread(unreadCount > 0);
-    setAnnouncements(allAnnouncements);
-  }, [userRole, router, allAnnouncements]);
+    const fetchAnnouncements = async () => {
+        setLoading(true);
+        const allAnnouncements = await getAnnouncements();
+        setAnnouncements(allAnnouncements);
+        
+        // In a real app, you'd fetch read status from a user-specific store.
+        // For this demo, we'll use localStorage.
+        const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
+        const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
+        setHasUnread(unreadCount > 0);
+        setLoading(false);
+    }
+
+    if (userRole === 'student') {
+      fetchAnnouncements();
+    }
+  }, [userRole, router]);
 
   const handleBellClick = () => {
     markAnnouncementsAsRead();
@@ -40,6 +52,27 @@ export default function Home() {
   if (userRole === 'teacher') {
       return <div className="flex items-center justify-center min-h-screen">Redirecting to dashboard...</div>;
   }
+  
+  const AnnouncementSkeletons = () => (
+    <>
+      <Card className="bg-primary/10 border-primary/20">
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <div>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32 mt-2" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-2/3 mt-2" />
+        </CardContent>
+      </Card>
+    </>
+  );
+
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
@@ -63,7 +96,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="grid gap-2">
-                {announcements.length > 0 ? (
+                {loading ? <Loader2 className="mx-auto my-4 h-6 w-6 animate-spin" /> : announcements.length > 0 ? (
                   announcements.slice(0, 3).map((announcement) => (
                      <div key={announcement.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
                       <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
@@ -88,8 +121,8 @@ export default function Home() {
           </PopoverContent>
         </Popover>
       </div>
-
-      {announcements.length > 0 && (
+      
+      {loading ? <AnnouncementSkeletons /> : announcements.length > 0 && (
         <Card className="bg-primary/10 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-4">

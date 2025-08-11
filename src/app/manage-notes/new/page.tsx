@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,29 +9,46 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Sparkles } from 'lucide-react';
-import { getSubjects, addNote } from '@/lib/data'; // Assuming we can get existing categories from notes
+import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
+import { getSubjects, addNote } from '@/lib/data';
 import { generateNote } from '@/ai/flows/generate-note-flow';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NewNotePage() {
   const router = useRouter();
-  const existingCategories = getSubjects();
   const { toast } = useToast();
-
+  
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleSave = () => {
+  useEffect(() => {
+    const fetchSubjects = async () => {
+        const subjects = await getSubjects();
+        setExistingCategories(subjects);
+    };
+    fetchSubjects();
+  }, []);
+
+  const handleSave = async () => {
     if (!title || !content || !category) {
         toast({ title: 'Missing Fields', description: 'Please fill out all fields.', variant: 'destructive'});
         return;
     }
-    addNote({ title, content, category });
-    toast({ title: 'Success!', description: 'Note created successfully.' });
-    router.push('/manage-notes');
+    setIsSaving(true);
+    try {
+        await addNote({ title, content, category });
+        toast({ title: 'Success!', description: 'Note created successfully.' });
+        router.push('/manage-notes');
+    } catch(error) {
+        console.error("Failed to save note:", error);
+        toast({ title: 'Save Failed', description: 'Could not create the note.', variant: 'destructive'});
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   const handleGenerateNote = async () => {
@@ -92,8 +109,8 @@ export default function NewNotePage() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
                 <Label htmlFor="content">Content</Label>
-                <Button variant="ghost" size="sm" onClick={handleGenerateNote} disabled={isGenerating}>
-                    <Sparkles className="mr-2 h-4 w-4" />
+                <Button variant="ghost" size="sm" onClick={handleGenerateNote} disabled={isGenerating || isSaving}>
+                    {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     {isGenerating ? 'Generating...' : 'Generate with AI'}
                 </Button>
             </div>
@@ -102,13 +119,17 @@ export default function NewNotePage() {
                 placeholder="Write the note content here, or generate it with AI." 
                 value={content} 
                 onChange={(e) => setContent(e.target.value)} 
-                className="min-h-[250px]" 
+                className="min-h-[250px]"
+                disabled={isSaving}
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => router.push('/manage-notes')}>Cancel</Button>
-            <Button onClick={handleSave}>Save Note</Button>
+            <Button variant="outline" onClick={() => router.push('/manage-notes')} disabled={isSaving}>Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving || isGenerating}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Note
+            </Button>
           </div>
         </CardContent>
       </Card>

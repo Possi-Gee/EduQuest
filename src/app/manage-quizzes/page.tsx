@@ -1,7 +1,8 @@
 
 'use client';
 
-import { getQuizzes } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { getQuizzes, deleteQuiz } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -14,16 +15,44 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { Quiz } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ManageQuizzesPage() {
-  const quizzes = getQuizzes();
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
+
+  const fetchQuizzes = async () => {
+      setLoading(true);
+      const fetchedQuizzes = await getQuizzes();
+      setQuizzes(fetchedQuizzes);
+      setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchQuizzes();
+  }, []);
+
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     return `${minutes} min`;
+  };
+
+  const handleDeleteQuiz = async (quizId: string) => {
+    if (confirm('Are you sure you want to delete this quiz?')) {
+      try {
+        await deleteQuiz(quizId);
+        await fetchQuizzes();
+        toast({title: 'Deleted', description: 'The quiz has been removed.'});
+      } catch(error) {
+        toast({title: 'Error', description: 'Failed to delete the quiz.', variant: 'destructive'});
+      }
+    }
   };
 
   return (
@@ -55,7 +84,17 @@ export default function ManageQuizzesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {quizzes.length > 0 ? (
+              {loading ? (
+                Array.from({length: 3}).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Skeleton className="h-5 w-3/4" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
+                        <TableCell className="hidden md:table-cell text-center"><Skeleton className="h-5 w-8 mx-auto" /></TableCell>
+                        <TableCell className="hidden md:table-cell text-center"><Skeleton className="h-5 w-16 mx-auto" /></TableCell>
+                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                ))
+              ) : quizzes.length > 0 ? (
                 quizzes.map((quiz) => (
                   <TableRow key={quiz.id}>
                     <TableCell className="font-medium">{quiz.title}</TableCell>
@@ -79,7 +118,7 @@ export default function ManageQuizzesPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => router.push(`/manage-quizzes/edit/${quiz.id}`)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteQuiz(quiz.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
