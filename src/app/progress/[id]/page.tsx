@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 
 export default function StudentProgressPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { id } = params;
   const [student, setStudent] = useState<Student | null>(null);
   const [quizHistory, setQuizHistory] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +25,8 @@ export default function StudentProgressPage({ params }: { params: { id: string }
       setLoading(true);
       try {
         const [fetchedStudent, fetchedHistory] = await Promise.all([
-          getUserById(params.id),
-          getQuizHistoryForUser(params.id),
+          getUserById(id),
+          getQuizHistoryForUser(id),
         ]);
         
         if (fetchedStudent) {
@@ -43,7 +44,7 @@ export default function StudentProgressPage({ params }: { params: { id: string }
     };
 
     fetchData();
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
       return (
