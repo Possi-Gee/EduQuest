@@ -40,6 +40,7 @@ export const quizzes: Quiz[] = [
   {
     id: '1',
     title: 'History of Ancient Rome',
+    category: 'History',
     timeLimit: 600, // 10 minutes
     questions: [
       {
@@ -67,6 +68,7 @@ export const quizzes: Quiz[] = [
   {
     id: '2',
     title: 'Introduction to Algebra',
+    category: 'Math',
     timeLimit: 300, // 5 minutes
     questions: [
       {

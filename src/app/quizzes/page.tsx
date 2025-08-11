@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function QuizzesPage() {
   const quizzes = getQuizzes();
@@ -21,7 +22,10 @@ export default function QuizzesPage() {
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col bg-card/80 hover:bg-card/90 transition-colors">
             <CardHeader>
-              <CardTitle className="text-xl font-bold">{quiz.title}</CardTitle>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xl font-bold">{quiz.title}</CardTitle>
+                <Badge variant="outline">{quiz.category}</Badge>
+              </div>
               <div className="flex justify-between items-center text-sm text-muted-foreground pt-2">
                 <CardDescription>{quiz.questions.length} questions</CardDescription>
                 <div className="flex items-center gap-1.5">

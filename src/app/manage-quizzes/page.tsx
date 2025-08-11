@@ -46,6 +46,7 @@ export default function ManageQuizzesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
+                <TableHead className="hidden md:table-cell">Category</TableHead>
                 <TableHead className="hidden md:table-cell text-center">Questions</TableHead>
                 <TableHead className="hidden md:table-cell text-center">Time Limit</TableHead>
                 <TableHead>
@@ -58,11 +59,14 @@ export default function ManageQuizzesPage() {
                 quizzes.map((quiz) => (
                   <TableRow key={quiz.id}>
                     <TableCell className="font-medium">{quiz.title}</TableCell>
+                     <TableCell className="hidden md:table-cell">
+                      <Badge variant="outline">{quiz.category}</Badge>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell text-center">
                       {quiz.questions.length}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-center">
-                      <Badge variant="outline">{formatTime(quiz.timeLimit)}</Badge>
+                      <Badge variant="secondary">{formatTime(quiz.timeLimit)}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -83,7 +87,7 @@ export default function ManageQuizzesPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     No quizzes found. Get started by creating one.
                   </TableCell>
                 </TableRow>
