@@ -81,6 +81,11 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
     alert('Quiz updated successfully! (Check console)');
     router.push('/manage-quizzes');
   };
+  
+  const handleTimeLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTimeLimit(value === '' ? 0 : parseInt(value, 10) * 60);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in-50">
@@ -100,7 +105,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
             </div>
             <div className="space-y-2">
                 <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
-                <Input id="time-limit" type="number" value={timeLimit / 60} onChange={(e) => setTimeLimit(parseInt(e.target.value) * 60)} />
+                <Input id="time-limit" type="number" value={timeLimit / 60} onChange={handleTimeLimitChange} />
             </div>
           </div>
           
