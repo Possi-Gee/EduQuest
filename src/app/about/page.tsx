@@ -26,7 +26,7 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="p-6 text-center -mt-16">
           <Avatar className="h-24 w-24 mx-auto border-4 border-background">
-            <AvatarImage src="https://placehold.co/100x100.png" alt="App Creator" data-ai-hint="person face" />
+            <AvatarImage src="https://poss-gee.github.io/website/webimage5-removebg.png" alt="App Creator" data-ai-hint="person face" />
             <AvatarFallback>AC</AvatarFallback>
           </Avatar>
           <CardTitle className="mt-4">The Creator</CardTitle>
