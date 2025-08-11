@@ -9,19 +9,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Sparkles } from 'lucide-react';
 import { getNotes } from '@/lib/data'; // Assuming we can get existing categories from notes
+import { generateNote } from '@/ai/flows/generate-note-flow';
+import { useToast } from '@/hooks/use-toast';
 
 export default function NewNotePage() {
   const router = useRouter();
   const notes = getNotes();
   const existingCategories = [...new Set(notes.map(note => note.category))];
+  const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [newCategory, setNewCategory] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSave = () => {
     // In a real app, you would save this data to your backend
@@ -44,6 +48,31 @@ export default function NewNotePage() {
       setCategory(value);
     }
   };
+
+  const handleGenerateNote = async () => {
+    if (!title) {
+        toast({
+            title: 'Title is required',
+            description: 'Please enter a title to generate the note content.',
+            variant: 'destructive'
+        });
+        return;
+    }
+    setIsGenerating(true);
+    try {
+        const result = await generateNote({ title });
+        setContent(result.noteContent);
+    } catch (error) {
+        console.error('Error generating note:', error);
+        toast({
+            title: 'Generation Failed',
+            description: 'There was an error generating the note content.',
+            variant: 'destructive'
+        });
+    } finally {
+        setIsGenerating(false);
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in-50">
@@ -89,8 +118,20 @@ export default function NewNotePage() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea id="content" placeholder="Write the note content here..." value={content} onChange={(e) => setContent(e.target.value)} className="min-h-[200px]" />
+            <div className="flex justify-between items-center">
+                <Label htmlFor="content">Content</Label>
+                <Button variant="ghost" size="sm" onClick={handleGenerateNote} disabled={isGenerating}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {isGenerating ? 'Generating...' : 'Generate with AI'}
+                </Button>
+            </div>
+            <Textarea 
+                id="content" 
+                placeholder="Write the note content here, or generate it with AI." 
+                value={content} 
+                onChange={(e) => setContent(e.target.value)} 
+                className="min-h-[250px]" 
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
