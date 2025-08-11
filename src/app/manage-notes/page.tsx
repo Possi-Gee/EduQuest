@@ -6,7 +6,7 @@ import { getNotes, getSubjects, addSubject, deleteSubject as deleteSubjectFromDa
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Trash2, FolderKanban } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -27,7 +26,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ManageNotesPage() {
@@ -66,6 +64,10 @@ export default function ManageNotesPage() {
     }
   }
 
+  const navigateToNewNote = () => {
+    router.push('/manage-notes/new');
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -75,7 +77,7 @@ export default function ManageNotesPage() {
                 <DialogTrigger asChild>
                     <Button variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Create New Subject
+                        Manage Subjects
                     </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -94,19 +96,23 @@ export default function ManageNotesPage() {
                         </div>
                         <Card className="max-h-64 overflow-y-auto">
                             <CardContent className="p-2">
-                                {subjects.map(subject => (
+                                {subjects.length > 0 ? subjects.map(subject => (
                                     <div key={subject} className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
                                         <span className="text-sm">{subject}</span>
                                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80 h-8 w-8" onClick={() => handleDeleteSubject(subject)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
-                                ))}
+                                )) : <p className="text-center text-sm text-muted-foreground p-4">No subjects created yet.</p>}
                             </CardContent>
                         </Card>
                     </div>
                 </DialogContent>
             </Dialog>
+            <Button onClick={navigateToNewNote}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create New Note
+            </Button>
         </div>
       </div>
 
