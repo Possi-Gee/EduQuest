@@ -128,15 +128,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const [isTeacherMode, setIsTeacherMode] = useState(false);
-    
-    useEffect(() => {
-        const storedMode = localStorage.getItem('isTeacherMode');
-        setIsTeacherMode(storedMode ? JSON.parse(storedMode) : false);
-    }, [userRole]);
-
-
-    const navLinks = isTeacherMode ? teacherNavLinks : studentNavLinks;
+    const navLinks = userRole === 'teacher' ? teacherNavLinks : studentNavLinks;
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
     if (loading) {

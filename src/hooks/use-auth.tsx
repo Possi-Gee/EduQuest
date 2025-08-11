@@ -37,14 +37,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setUserRole(userData.role);
-          localStorage.setItem('isTeacherMode', JSON.stringify(userData.role === 'teacher'));
         }
         setUser(user);
       } else {
         // User is signed out.
         setUser(null);
         setUserRole(null);
-        localStorage.removeItem('isTeacherMode');
       }
       setLoading(false);
     });

@@ -69,12 +69,6 @@ export default function MorePage() {
   const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(app);
-  
-  const [isTeacherMode, setIsTeacherMode] = useState(false);
-  
-  useEffect(() => {
-    setIsTeacherMode(userRole === 'teacher');
-  }, [userRole]);
 
   const handleLogout = async () => {
     try {
@@ -84,11 +78,6 @@ export default function MorePage() {
     } catch (error) {
         toast({ title: 'Logout Failed', description: 'An error occurred during logout.', variant: 'destructive' });
     }
-  };
-  
-  const handleTeacherModeChange = (value: boolean) => {
-    localStorage.setItem('isTeacherMode', JSON.stringify(value));
-    window.location.href = value ? '/dashboard' : '/';
   };
 
   return (
@@ -158,23 +147,10 @@ export default function MorePage() {
                         </Button>
                         </div>
                     </div>
-                    {userRole === 'teacher' && (
-                     <div className="flex items-center justify-between">
-                        <Label htmlFor="teacher-mode" className="font-normal">
-                          <p>Teacher Mode</p>
-                          <p className="text-xs text-muted-foreground">Access the teacher dashboard.</p>
-                        </Label>
-                        <Switch
-                          id="teacher-mode"
-                          checked={isTeacherMode}
-                          onCheckedChange={handleTeacherModeChange}
-                        />
-                    </div>
-                    )}
                 </div>
             </DialogContent>
         </GridItem>
-        {isTeacherMode && (
+        {userRole === 'teacher' && (
              <GridItem href="/manage-announcements" icon={MessageSquare} label="Announcements" />
         )}
         <GridItem action={handleLogout} icon={LogOut} label="Logout" />
