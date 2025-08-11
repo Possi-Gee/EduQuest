@@ -33,7 +33,10 @@ export default function LoginPage() {
       let errorMessage = 'An unexpected error occurred.';
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         errorMessage = 'Invalid email or password. Please try again.';
-      } else {
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      }
+      else {
         errorMessage = error.message;
       }
       toast({
