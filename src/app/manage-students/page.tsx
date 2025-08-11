@@ -25,10 +25,6 @@ export default function ManageStudentsPage() {
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Manage Students</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Student
-        </Button>
       </div>
 
       <Card>
