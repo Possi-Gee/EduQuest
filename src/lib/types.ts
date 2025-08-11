@@ -31,3 +31,11 @@ export interface User {
   avatarUrl: string;
   quizHistory: QuizAttempt[];
 }
+
+export interface Student {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  quizzesTaken: number;
+  averageScore: number;
+}

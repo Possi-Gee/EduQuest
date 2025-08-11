@@ -1,4 +1,4 @@
-import type { Note, Quiz, User } from './types';
+import type { Note, Quiz, User, Student } from './types';
 
 export const user: User = {
   name: 'Alex',
@@ -88,9 +88,18 @@ export const quizzes: Quiz[] = [
   },
 ];
 
+export const students: Student[] = [
+  { id: '1', name: 'John Doe', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 5, averageScore: 85 },
+  { id: '2', name: 'Jane Smith', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 8, averageScore: 92 },
+  { id: '3', name: 'Sam Wilson', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 3, averageScore: 78 },
+  { id: '4', name: 'Lisa Ray', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 10, averageScore: 88 },
+];
+
+
 // Helper functions to get data
 export const getNotes = () => notes;
 export const getNoteById = (id: string) => notes.find(note => note.id === id);
 export const getQuizzes = () => quizzes;
 export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;
+export const getStudents = () => students;
