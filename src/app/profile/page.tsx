@@ -138,23 +138,20 @@ export default function ProfilePage() {
       <div className="grid gap-8 md:grid-cols-3">
         <Card className="md:col-span-1">
             <CardHeader className="items-center text-center">
-                 <button onClick={handleAvatarClick} className="relative group rounded-full" disabled={isUploading}>
-                    <Avatar className="h-24 w-24">
-                        <AvatarImage src={avatarUrl} alt={name} data-ai-hint="profile picture" />
-                        <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      {isUploading ? (
-                          <Loader2 className="h-8 w-8 text-white animate-spin" />
-                      ) : (
-                          <Upload className="h-8 w-8 text-white" />
-                      )}
-                    </div>
-                </button>
+                 <Avatar className="h-24 w-24">
+                    <AvatarImage src={avatarUrl} alt={name} data-ai-hint="profile picture" />
+                    <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                 <CardTitle className="text-2xl pt-4">{name}</CardTitle>
                 <CardDescription>{user.email}</CardDescription>
             </CardHeader>
+            <CardContent className="flex flex-col items-center">
+                <Button onClick={handleAvatarClick} variant="outline" size="sm" className="w-full" disabled={isUploading}>
+                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                    {isUploading ? 'Uploading...' : 'Change Photo'}
+                </Button>
+            </CardContent>
         </Card>
 
         <div className="md:col-span-2 space-y-8">
