@@ -3,39 +3,83 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin, ArrowLeft, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, Bell, Settings as SettingsIcon, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+const GridItem = ({ href, icon: Icon, label, action, isDialog = false, children }: { href?: string; icon: React.ElementType, label: string; action?: () => void; isDialog?: boolean; children?: React.ReactNode }) => {
+  const content = (
+      <div className="flex flex-col items-center justify-center text-center gap-2 p-4 h-full">
+        <Icon className="h-8 w-8 text-primary" />
+        <span className="font-medium text-sm">{label}</span>
+      </div>
+  );
+
+  if (isDialog) {
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <button className="bg-card hover:bg-muted/50 transition-colors rounded-lg shadow-sm w-full h-32 text-card-foreground">
+             {content}
+          </button>
+        </DialogTrigger>
+        {children}
+      </Dialog>
+    );
+  }
+
+  if (href) {
+    return (
+        <Link href={href} className="block bg-card hover:bg-muted/50 transition-colors rounded-lg shadow-sm w-full h-32">
+            {content}
+        </Link>
+    );
+  }
+  
+  return (
+    <button onClick={action} className="bg-card hover:bg-muted/50 transition-colors rounded-lg shadow-sm w-full h-32 text-card-foreground">
+      {content}
+    </button>
+  );
+};
+
 
 export default function MorePage() {
   const { theme, setTheme } = useTheme();
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedMode = localStorage.getItem('isTeacherMode');
     if (storedMode) {
       setIsTeacherMode(JSON.parse(storedMode));
     }
+    setIsLoading(false);
   }, []);
   
   const handleTeacherModeChange = (value: boolean) => {
     setIsTeacherMode(value);
     localStorage.setItem('isTeacherMode', JSON.stringify(value));
-    // A simple way to refresh the layout without a full page reload
-    if (value) {
-      router.push('/dashboard');
-    } else {
-      router.push('/');
-    }
-    // A full reload might be better to ensure layout changes apply cleanly.
     window.location.href = value ? '/dashboard' : '/';
   };
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
@@ -44,115 +88,59 @@ export default function MorePage() {
         <p className="text-muted-foreground">Manage your account and app preferences.</p>
       </div>
 
-      {isTeacherMode && (
-         <Card>
-            <CardHeader>
-            <CardTitle>Teacher Actions</CardTitle>
-            <CardDescription>Manage teacher-specific features.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-                <Button asChild variant="outline" className="w-full justify-between">
-                    <Link href="/manage-announcements">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <GridItem href="/profile" icon={User} label="Profile" />
+        <GridItem href="/about" icon={Info} label="About" />
+        <GridItem isDialog icon={SettingsIcon} label="Settings">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Settings</DialogTitle>
+                    <DialogDescription>
+                        Customize your app experience.
+                    </DialogDescription>
+                </DialogHeader>
+                 <div className="space-y-6 pt-2">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="dark-mode" className="font-normal">
+                        <p>Theme</p>
+                        <p className="text-xs text-muted-foreground">Select a light or dark theme.</p>
+                        </Label>
                         <div className="flex items-center gap-2">
-                            <Bell className="h-4 w-4" />
-                            Manage Announcements
+                        <Button
+                            variant={theme === 'light' ? 'default' : 'outline'}
+                            size="icon"
+                            onClick={() => setTheme('light')}
+                        >
+                            <Sun className="h-5 w-5" />
+                        </Button>
+                        <Button
+                            variant={theme === 'dark' ? 'default' : 'outline'}
+                            size="icon"
+                            onClick={() => setTheme('dark')}
+                        >
+                            <Moon className="h-5 w-5" />
+                        </Button>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                </Button>
-            </CardContent>
-      </Card>
-      )}
-     
-      <Card>
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>Manage your account settings.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-            <Button asChild variant="outline" className="w-full justify-between">
-                <Link href="/profile">
-                    <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Update Profile
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-                <LogOut className="h-4 w-4" />
-                Logout
-            </Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Mode</CardTitle>
-          <CardDescription>Switch between student and teacher views.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="teacher-mode" className="font-normal">
-              <p>Teacher Mode</p>
-              <p className="text-xs text-muted-foreground">Access the teacher dashboard.</p>
-            </Label>
-            <Switch
-              id="teacher-mode"
-              checked={isTeacherMode}
-              onCheckedChange={handleTeacherModeChange}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize the look and feel of the app.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="dark-mode" className="font-normal">
-              <p>Theme</p>
-              <p className="text-xs text-muted-foreground">Select a light or dark theme.</p>
-            </Label>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={theme === 'light' ? 'default' : 'outline'}
-                size="icon"
-                onClick={() => setTheme('light')}
-              >
-                <Sun className="h-5 w-5" />
-              </Button>
-              <Button
-                variant={theme === 'dark' ? 'default' : 'outline'}
-                size="icon"
-                onClick={() => setTheme('dark')}
-              >
-                <Moon className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-       <Card>
-        <CardHeader>
-            <CardTitle>About</CardTitle>
-            <CardDescription>Information about the creator.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-            <Button asChild variant="outline" className="w-full justify-between">
-                <Link href="/about">
-                    <div className="flex items-center gap-2">
-                        <Info className="h-4 w-4" />
-                        About the Creator
+                     <div className="flex items-center justify-between">
+                        <Label htmlFor="teacher-mode" className="font-normal">
+                          <p>Teacher Mode</p>
+                          <p className="text-xs text-muted-foreground">Access the teacher dashboard.</p>
+                        </Label>
+                        <Switch
+                          id="teacher-mode"
+                          checked={isTeacherMode}
+                          onCheckedChange={handleTeacherModeChange}
+                        />
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-            </Button>
-        </CardContent>
-      </Card>
+                </div>
+            </DialogContent>
+        </GridItem>
+        {isTeacherMode && (
+             <GridItem href="/manage-announcements" icon={Bell} label="Announcements" />
+        )}
+        <GridItem action={() => {}} icon={LogOut} label="Logout" />
+      </div>
     </div>
   );
 }
