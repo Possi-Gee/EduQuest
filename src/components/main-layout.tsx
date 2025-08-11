@@ -27,7 +27,7 @@ const studentNavLinks = [
 ];
 
 const teacherNavLinks = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/manage-quizzes', icon: FilePlus, label: 'Manage Quizzes' },
   { href: '/manage-notes', icon: FilePenLine, label: 'Manage Notes' },
   { href: '/manage-students', icon: Users, label: 'Manage Students' },
