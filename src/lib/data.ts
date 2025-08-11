@@ -24,6 +24,13 @@ export const getNoteById = async (id: string): Promise<Note | null> => {
 
 export const addNote = async (note: Omit<Note, 'id'>): Promise<string> => {
     const docRef = await addDoc(collection(db, 'notes'), note);
+    // Ensure the subject exists in the subjects collection
+    const subjectsRef = collection(db, "subjects");
+    const q = query(subjectsRef, where("name", "==", note.category));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        await addDoc(subjectsRef, { name: note.category });
+    }
     return docRef.id;
 };
 
@@ -58,6 +65,13 @@ export const getQuizById = async (id: string): Promise<Quiz | null> => {
 
 export const addQuiz = async (quiz: Omit<Quiz, 'id'>): Promise<string> => {
     const docRef = await addDoc(collection(db, 'quizzes'), quiz);
+     // Ensure the subject exists in the subjects collection
+    const subjectsRef = collection(db, "subjects");
+    const q = query(subjectsRef, where("name", "==", quiz.category));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        await addDoc(subjectsRef, { name: quiz.category });
+    }
     return docRef.id;
 };
 
@@ -103,7 +117,7 @@ export const getUserById = async (id: string): Promise<Student | null> => {
     if (userSnap.exists()) {
         const data = userSnap.data();
         const quizHistory = data.quizHistory || [];
-        const averageScore = quizHistory.length > 0 
+        const averageScore = quizHistory.length > 0
             ? Math.round(quizHistory.reduce((acc: number, curr: QuizAttempt) => acc + (curr.score / curr.total) * 100, 0) / quizHistory.length)
             : 0;
 
@@ -124,11 +138,11 @@ export const getStudents = async (): Promise<Student[]> => {
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("role", "==", "student"));
     const querySnapshot = await getDocs(q);
-    
+
     const studentList = querySnapshot.docs.map(doc => {
         const data = doc.data();
         const quizHistory = data.quizHistory || [];
-        const averageScore = quizHistory.length > 0 
+        const averageScore = quizHistory.length > 0
             ? Math.round(quizHistory.reduce((acc: number, curr: QuizAttempt) => acc + (curr.score / curr.total) * 100, 0) / quizHistory.length)
             : 0;
 
@@ -141,7 +155,7 @@ export const getStudents = async (): Promise<Student[]> => {
             averageScore: averageScore,
         } as Student;
     });
-    
+
     return studentList;
 };
 
@@ -205,30 +219,37 @@ export const markAnnouncementsAsRead = async () => {
 };
 
 // --- Subjects (Categories) ---
-// Subjects are derived from notes and quizzes, so we'll get them from those collections.
 export const getSubjects = async (): Promise<string[]> => {
-    const notesPromise = getNotes();
-    const quizzesPromise = getQuizzes();
-    const [notes, quizzes] = await Promise.all([notesPromise, quizzesPromise]);
-    const subjects = new Set([...notes.map(n => n.category), ...quizzes.map(q => q.category)]);
-    return [...subjects].sort();
+    const subjectsCol = collection(db, 'subjects');
+    const subjectSnapshot = await getDocs(subjectsCol);
+    const subjectList = subjectSnapshot.docs.map(doc => doc.data().name as string);
+    return subjectList.sort();
 };
 
-export const addSubject = async (subject: string): Promise<void> => {
-    // Subjects are not a separate collection. They are just fields in notes/quizzes.
-    // To "add" a subject, you create a note or quiz with that category.
-    // This function could add a placeholder document to a 'subjects' collection if needed,
-    // but based on the current setup, it's not necessary. We'll leave this as a no-op
-    // for now, but the UI calls it, so the function needs to exist.
-    console.log(`A new subject "${subject}" will be available once a note or quiz is added to it.`);
+export const addSubject = async (subjectName: string): Promise<void> => {
+    // Check if subject already exists to avoid duplicates
+    const subjectsRef = collection(db, "subjects");
+    const q = query(subjectsRef, where("name", "==", subjectName));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        await addDoc(subjectsRef, { name: subjectName });
+    } else {
+        console.log(`Subject "${subjectName}" already exists.`);
+    }
 };
 
 export const deleteSubject = async (subject: string): Promise<void> => {
-    // This is a complex operation. It requires deleting all notes and quizzes with the subject.
-    // A batch write is the most efficient way to do this.
     const batch = writeBatch(db);
 
-    // Find all notes with the subject and add delete operations to the batch
+    // Find and delete the subject document from the 'subjects' collection
+    const subjectsRef = collection(db, "subjects");
+    const subjectQuery = query(subjectsRef, where("name", "==", subject));
+    const subjectSnapshot = await getDocs(subjectQuery);
+    subjectSnapshot.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+
+    // Find and delete all notes with the subject
     const notesRef = collection(db, "notes");
     const notesQuery = query(notesRef, where("category", "==", subject));
     const notesSnapshot = await getDocs(notesQuery);
@@ -236,7 +257,7 @@ export const deleteSubject = async (subject: string): Promise<void> => {
         batch.delete(doc.ref);
     });
 
-    // Find all quizzes with the subject and add delete operations to the batch
+    // Find and delete all quizzes with the subject
     const quizzesRef = collection(db, "quizzes");
     const quizzesQuery = query(quizzesRef, where("category", "==", subject));
     const quizzesSnapshot = await getDocs(quizzesQuery);
