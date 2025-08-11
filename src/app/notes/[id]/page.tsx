@@ -6,10 +6,12 @@ import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { use } from 'react';
 
-export default function NoteDetailPage({ params }: { params: { id: string } }) {
+export default function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const note = getNoteById(params.id);
+  const { id } = use(params);
+  const note = getNoteById(id);
 
   if (!note) {
     notFound();
