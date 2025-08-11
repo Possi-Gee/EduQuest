@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getQuizById, getUser, addQuizAttempt } from '@/lib/data';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
