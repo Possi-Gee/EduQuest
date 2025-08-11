@@ -9,6 +9,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Note } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function NoteDetailPage() {
   const router = useRouter();
@@ -66,8 +68,10 @@ export default function NoteDetailPage() {
           <CardDescription>{note.category}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground/90 whitespace-pre-wrap">
-            {note.content}
+          <div className="prose dark:prose-invert max-w-none">
+             <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {note.content}
+            </ReactMarkdown>
           </div>
         </CardContent>
       </Card>
