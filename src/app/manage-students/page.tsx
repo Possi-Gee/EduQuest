@@ -131,8 +131,8 @@ export default function ManageStudentsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => router.push('/profile')}>View Profile</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Viewing progress is not yet implemented.')}>View Progress</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/profile/${student.id}`)}>View Profile</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/progress/${student.id}`)}>View Progress</DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive focus:bg-destructive/10"
                             onClick={() => handleRemoveStudent(student.id, student.name)}

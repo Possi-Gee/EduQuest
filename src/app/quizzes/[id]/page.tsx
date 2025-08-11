@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, use, useEffect, useRef } from 'react';
-import { getQuizById, getUser } from '@/lib/data';
+import { useState, useEffect, useRef } from 'react';
+import { getQuizById, getUser, addQuizAttempt } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -17,10 +17,12 @@ import jsPDF from 'jspdf';
 import { cn } from '@/lib/utils';
 import type { Quiz, UserData } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function QuizPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
+  const { user: authUser } = useAuth();
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [user, setUser] = useState<UserData | null>(null);
@@ -58,7 +60,7 @@ export default function QuizPage({ params }: { params: { id: string } }) {
   }, [id]);
   
   const finishQuiz = () => {
-    if (!quiz) return;
+    if (!quiz || !authUser) return;
     let calculatedScore = 0;
     quiz.questions.forEach((question, index) => {
       if (selectedAnswers[index] === question.answerIndex) {
@@ -67,6 +69,14 @@ export default function QuizPage({ params }: { params: { id: string } }) {
     });
     setScore(calculatedScore);
     setIsFinished(true);
+    
+    // Save quiz attempt
+    addQuizAttempt(authUser.uid, {
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        score: calculatedScore,
+        total: quiz.questions.length,
+    });
   };
 
   useEffect(() => {

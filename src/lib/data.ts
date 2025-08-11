@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Note, Quiz, UserData, Student, Announcement } from './types';
+import type { Note, Quiz, UserData, Student, Announcement, QuizAttempt } from './types';
 import { getAuth } from 'firebase/auth';
 
 // --- Notes ---
@@ -74,10 +74,22 @@ export const deleteQuiz = async (id: string): Promise<void> => {
 
 // --- User & Students ---
 export const getUser = async (): Promise<UserData> => {
-    // This is a placeholder. In a real app, you'd fetch this from your 'users' collection
-    // based on the authenticated user's ID.
     const auth = getAuth();
     const currentUser = auth.currentUser;
+    if (!currentUser) {
+        throw new Error("User not authenticated");
+    }
+    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+
+    if (userDoc.exists()) {
+        const userData = userDoc.data();
+        return {
+            name: userData.name,
+            avatarUrl: userData.photoURL || `https://placehold.co/100x100.png?text=${userData.name?.charAt(0)}`,
+            quizHistory: userData.quizHistory || [],
+        };
+    }
+     // Fallback for user just created
     return {
         name: currentUser?.displayName || 'Student',
         avatarUrl: currentUser?.photoURL || `https://placehold.co/100x100.png?text=${currentUser?.displayName?.charAt(0)}`,
@@ -85,29 +97,82 @@ export const getUser = async (): Promise<UserData> => {
     };
 };
 
+export const getUserById = async (id: string): Promise<Student | null> => {
+    const userRef = doc(db, 'users', id);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        const data = userSnap.data();
+        const quizHistory = data.quizHistory || [];
+        const averageScore = quizHistory.length > 0 
+            ? Math.round(quizHistory.reduce((acc: number, curr: QuizAttempt) => acc + (curr.score / curr.total) * 100, 0) / quizHistory.length)
+            : 0;
+
+        return {
+            id: userSnap.id,
+            name: data.name,
+            email: data.email,
+            avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
+            quizzesTaken: quizHistory.length,
+            averageScore: averageScore,
+        } as Student;
+    } else {
+        return null;
+    }
+};
+
 export const getStudents = async (): Promise<Student[]> => {
-    // Fetches documents from the 'users' collection where role is 'student'
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("role", "==", "student"));
     const querySnapshot = await getDocs(q);
+    
     const studentList = querySnapshot.docs.map(doc => {
         const data = doc.data();
+        const quizHistory = data.quizHistory || [];
+        const averageScore = quizHistory.length > 0 
+            ? Math.round(quizHistory.reduce((acc: number, curr: QuizAttempt) => acc + (curr.score / curr.total) * 100, 0) / quizHistory.length)
+            : 0;
+
         return {
             id: doc.id,
             name: data.name,
+            email: data.email,
             avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
-            quizzesTaken: 0, // Placeholder data
-            averageScore: 0, // Placeholder data
+            quizzesTaken: quizHistory.length,
+            averageScore: averageScore,
         } as Student;
     });
+    
     return studentList;
 };
 
 export const deleteStudent = async (id: string): Promise<void> => {
-    // Note: This deletes the user's record from your 'users' collection.
-    // It does NOT delete their Firebase Auth account. That requires a backend function.
     const studentRef = doc(db, 'users', id);
     await deleteDoc(studentRef);
+};
+
+export const getQuizHistoryForUser = async (userId: string): Promise<QuizAttempt[]> => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        const userData = userSnap.data();
+        return (userData.quizHistory || []).sort((a: QuizAttempt, b: QuizAttempt) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+    return [];
+}
+
+export const addQuizAttempt = async (userId: string, attempt: Omit<QuizAttempt, 'date'>) => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const newAttempt = {
+            ...attempt,
+            date: new Date().toISOString()
+        };
+        const updatedHistory = [...(userData.quizHistory || []), newAttempt];
+        await updateDoc(userRef, { quizHistory: updatedHistory });
+    }
 };
 
 

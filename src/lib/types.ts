@@ -38,6 +38,7 @@ export interface UserData {
 export interface Student {
   id: string;
   name: string;
+  email: string;
   avatarUrl: string;
   quizzesTaken: number;
   averageScore: number;
