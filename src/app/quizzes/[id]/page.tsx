@@ -178,9 +178,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-       <Button onClick={() => router.back()} variant="outline" size="sm">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
+       <Button onClick={() => router.back()} variant="outline" size="icon">
+        <ArrowLeft className="h-4 w-4" />
       </Button>
 
       <Card>

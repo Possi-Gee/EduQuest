@@ -16,9 +16,8 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8">
-       <Button onClick={() => router.back()} variant="outline" size="sm" className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
+       <Button onClick={() => router.back()} variant="outline" size="icon" className="mb-4">
+        <ArrowLeft className="h-4 w-4" />
       </Button>
       <div className="flex items-center gap-4">
         <Avatar className="h-24 w-24">

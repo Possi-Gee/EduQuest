@@ -19,9 +19,8 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="space-y-6">
-      <Button onClick={() => router.back()} variant="outline" size="sm">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
+      <Button onClick={() => router.back()} variant="outline" size="icon">
+        <ArrowLeft className="h-4 w-4" />
       </Button>
       <Card>
         <CardHeader>

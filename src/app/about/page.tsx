@@ -13,9 +13,8 @@ export default function AboutPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-       <Button onClick={() => router.back()} variant="outline" size="sm">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
+       <Button onClick={() => router.back()} variant="outline" size="icon">
+        <ArrowLeft className="h-4 w-4" />
       </Button>
       <div className="text-center">
         <h1 className="text-3xl font-bold">About the Creator</h1>
