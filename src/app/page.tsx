@@ -1,39 +1,50 @@
 
 'use client';
 
-import { getUser, getAnnouncements, markAnnouncementsAsRead } from '@/lib/data';
+import { getAnnouncements, markAnnouncementsAsRead } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpen, ClipboardCheck, Settings, Bell } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const user = getUser();
+  const { user, userRole } = useAuth();
   const allAnnouncements = getAnnouncements();
   const [hasUnread, setHasUnread] = useState(false);
   const [announcements, setAnnouncements] = useState(allAnnouncements);
-
+  const router = useRouter();
+  
   useEffect(() => {
+    if (userRole === 'teacher') {
+        router.replace('/dashboard');
+        return;
+    }
+    
     // In a real app, you'd fetch read status from a user-specific store.
     // For this demo, we'll use localStorage.
     const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
     const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
     setHasUnread(unreadCount > 0);
     setAnnouncements(allAnnouncements);
-  }, []);
+  }, [userRole, router, allAnnouncements]);
 
   const handleBellClick = () => {
-    const readIds = markAnnouncementsAsRead();
+    markAnnouncementsAsRead();
     setHasUnread(false);
   };
+  
+  if (userRole === 'teacher') {
+      return <div className="flex items-center justify-center min-h-screen">Redirecting to dashboard...</div>;
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
+        <h1 className="text-3xl font-bold">Welcome, {user?.displayName || 'Student'}!</h1>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="icon" className="relative" onClick={handleBellClick}>

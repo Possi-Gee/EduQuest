@@ -1,3 +1,4 @@
+
 export interface Note {
   id: string;
   title: string;
@@ -27,7 +28,8 @@ export interface QuizAttempt {
   date: string;
 }
 
-export interface User {
+// This User type is for the static data, not Firebase auth user
+export interface UserData {
   name: string;
   avatarUrl: string;
   quizHistory: QuizAttempt[];

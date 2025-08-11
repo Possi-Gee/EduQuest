@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, LogOut, User, Info, Bell, Settings as SettingsIcon, GraduationCap, MessageSquare, KeyRound, Image as ImageIcon } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, Bell, Settings as SettingsIcon, GraduationCap, MessageSquare, KeyRound, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -22,7 +22,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { getUser } from '@/lib/data';
+import { useAuth } from '@/hooks/use-auth';
+import { getAuth, signOut } from 'firebase/auth';
+import { app } from '@/lib/firebase';
 
 const GridItem = ({ href, icon: Icon, label, action, isDialog = false, children }: { href?: string; icon: React.ElementType, label: string; action?: () => void; isDialog?: boolean; children?: React.ReactNode }) => {
   const content = (
@@ -63,27 +65,31 @@ const GridItem = ({ href, icon: Icon, label, action, isDialog = false, children 
 
 export default function MorePage() {
   const { theme, setTheme } = useTheme();
-  const [isTeacherMode, setIsTeacherMode] = useState(false);
+  const { userRole } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const auth = getAuth(app);
+  
+  const [isTeacherMode, setIsTeacherMode] = useState(false);
   
   useEffect(() => {
-    const storedMode = localStorage.getItem('isTeacherMode');
-    if (storedMode) {
-      setIsTeacherMode(JSON.parse(storedMode));
+    setIsTeacherMode(userRole === 'teacher');
+  }, [userRole]);
+
+  const handleLogout = async () => {
+    try {
+        await signOut(auth);
+        toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+        router.push('/login');
+    } catch (error) {
+        toast({ title: 'Logout Failed', description: 'An error occurred during logout.', variant: 'destructive' });
     }
-    setIsLoading(false);
-  }, []);
+  };
   
   const handleTeacherModeChange = (value: boolean) => {
-    setIsTeacherMode(value);
     localStorage.setItem('isTeacherMode', JSON.stringify(value));
     window.location.href = value ? '/dashboard' : '/';
   };
-  
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
@@ -152,6 +158,7 @@ export default function MorePage() {
                         </Button>
                         </div>
                     </div>
+                    {userRole === 'teacher' && (
                      <div className="flex items-center justify-between">
                         <Label htmlFor="teacher-mode" className="font-normal">
                           <p>Teacher Mode</p>
@@ -163,13 +170,14 @@ export default function MorePage() {
                           onCheckedChange={handleTeacherModeChange}
                         />
                     </div>
+                    )}
                 </div>
             </DialogContent>
         </GridItem>
         {isTeacherMode && (
              <GridItem href="/manage-announcements" icon={MessageSquare} label="Announcements" />
         )}
-        <GridItem action={() => alert('Logout functionality not implemented yet.')} icon={LogOut} label="Logout" />
+        <GridItem action={handleLogout} icon={LogOut} label="Logout" />
       </div>
     </div>
   );
