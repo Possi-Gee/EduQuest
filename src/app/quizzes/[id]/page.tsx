@@ -19,9 +19,10 @@ import type { Quiz, UserData } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
 
-export default function QuizPage({ params }: { params: { id: string } }) {
+export default function QuizPage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   const { user: authUser } = useAuth();
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -37,6 +38,7 @@ export default function QuizPage({ params }: { params: { id: string } }) {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
         setLoading(true);
         try {

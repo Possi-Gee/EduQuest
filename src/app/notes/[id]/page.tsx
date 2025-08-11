@@ -10,13 +10,15 @@ import { useEffect, useState } from 'react';
 import type { Note } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function NoteDetailPage({ params }: { params: { id: string } }) {
+export default function NoteDetailPage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
     const fetchNote = async () => {
       setLoading(true);
       const fetchedNote = await getNoteById(id);

@@ -13,14 +13,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-export default function StudentProgressPage({ params }: { params: { id: string } }) {
+export default function StudentProgressPage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   const [student, setStudent] = useState<Student | null>(null);
   const [quizHistory, setQuizHistory] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
       setLoading(true);
       try {

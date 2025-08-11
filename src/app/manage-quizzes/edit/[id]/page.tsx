@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, use, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, notFound, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,10 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function EditQuizPage({ params }: { params: { id: string } }) {
+export default function EditQuizPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [title, setTitle] = useState('');
@@ -30,6 +31,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
         setLoading(true);
         try {

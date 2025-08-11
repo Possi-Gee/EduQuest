@@ -11,13 +11,15 @@ import { getUserById } from '@/lib/data';
 import type { Student } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function StudentProfilePage({ params }: { params: { id: string } }) {
+export default function StudentProfilePage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
     const fetchStudent = async () => {
       setLoading(true);
       try {
