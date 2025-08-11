@@ -9,44 +9,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Sparkles } from 'lucide-react';
-import { getNotes } from '@/lib/data'; // Assuming we can get existing categories from notes
+import { ArrowLeft, Sparkles } from 'lucide-react';
+import { getSubjects } from '@/lib/data'; // Assuming we can get existing categories from notes
 import { generateNote } from '@/ai/flows/generate-note-flow';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NewNotePage() {
   const router = useRouter();
-  const notes = getNotes();
-  const existingCategories = [...new Set(notes.map(note => note.category))];
+  const existingCategories = getSubjects();
   const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
-  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSave = () => {
     // In a real app, you would save this data to your backend
-    const finalCategory = isAddingNewCategory ? newCategory : category;
-    if (!title || !content || !finalCategory) {
+    if (!title || !content || !category) {
         alert('Please fill out all fields.');
         return;
     }
-    console.log('Saving note:', { title, content, category: finalCategory });
+    console.log('Saving note:', { title, content, category });
     alert('Note saved successfully! (Check console)');
     router.push('/manage-notes');
-  };
-  
-  const handleCategoryChange = (value: string) => {
-    if (value === 'add-new') {
-      setIsAddingNewCategory(true);
-      setCategory(value);
-    } else {
-      setIsAddingNewCategory(false);
-      setCategory(value);
-    }
   };
 
   const handleGenerateNote = async () => {
@@ -92,7 +78,7 @@ export default function NewNotePage() {
           
           <div className="space-y-2">
             <Label htmlFor="category">Subject (Category)</Label>
-            <Select onValueChange={handleCategoryChange} value={category}>
+            <Select onValueChange={setCategory} value={category}>
                 <SelectTrigger id="category">
                     <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
@@ -100,22 +86,9 @@ export default function NewNotePage() {
                     {existingCategories.map(cat => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
-                    <SelectItem value="add-new">
-                        <span className="flex items-center gap-2">
-                            <PlusCircle className="h-4 w-4" />
-                            Add new subject
-                        </span>
-                    </SelectItem>
                 </SelectContent>
             </Select>
           </div>
-            
-          {isAddingNewCategory && (
-            <div className="space-y-2 pl-1 animate-in fade-in-25">
-              <Label htmlFor="new-category">New Subject Name</Label>
-              <Input id="new-category" placeholder="e.g., European History" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
-            </div>
-          )}
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">

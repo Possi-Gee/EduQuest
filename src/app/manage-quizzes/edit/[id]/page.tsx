@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Trash2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { getQuizById, getNotes } from '@/lib/data';
+import { getQuizById, getSubjects } from '@/lib/data';
 import type { QuizQuestion } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -21,13 +21,10 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
   const [quiz, setQuiz] = useState(getQuizById(id));
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
   const [timeLimit, setTimeLimit] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   
-  const notes = getNotes();
-  const existingCategories = [...new Set(notes.map(note => note.category))];
+  const existingCategories = getSubjects();
 
   useEffect(() => {
     const currentQuiz = getQuizById(id);
@@ -79,24 +76,13 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
         alert("A quiz must have at least one question.");
     }
   };
-  
-  const handleCategoryChange = (value: string) => {
-    if (value === 'add-new') {
-      setIsAddingNewCategory(true);
-      setCategory(value);
-    } else {
-      setIsAddingNewCategory(false);
-      setCategory(value);
-    }
-  };
 
   const handleSave = () => {
-    const finalCategory = isAddingNewCategory ? newCategory : category;
-    if (!title || !finalCategory || questions.some(q => !q.question || q.options.some(o => !o))) {
+    if (!title || !category || questions.some(q => !q.question || q.options.some(o => !o))) {
         alert('Please fill out all fields.');
         return;
     }
-    console.log('Updating quiz:', { id, title, category: finalCategory, timeLimit, questions });
+    console.log('Updating quiz:', { id, title, category, timeLimit, questions });
     alert('Quiz updated successfully! (Check console)');
     router.push('/manage-quizzes');
   };
@@ -124,7 +110,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
             </div>
              <div className="space-y-2">
                 <Label htmlFor="category">Subject (Category)</Label>
-                <Select onValueChange={handleCategoryChange} value={category}>
+                <Select onValueChange={setCategory} value={category}>
                     <SelectTrigger id="category">
                         <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
@@ -132,22 +118,9 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                         {existingCategories.map(cat => (
                             <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
-                        <SelectItem value="add-new">
-                            <span className="flex items-center gap-2">
-                                <PlusCircle className="h-4 w-4" />
-                                Add new subject
-                            </span>
-                        </SelectItem>
                     </SelectContent>
                 </Select>
               </div>
-
-              {isAddingNewCategory && (
-                <div className="space-y-2 md:col-span-2 pl-1 animate-in fade-in-25">
-                  <Label htmlFor="new-category">New Subject Name</Label>
-                  <Input id="new-category" placeholder="e.g., European History" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
-                </div>
-              )}
             <div className="space-y-2">
                 <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
                 <Input id="time-limit" type="number" value={timeLimit > 0 ? timeLimit / 60 : ''} onChange={handleTimeLimitChange} />

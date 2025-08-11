@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, PlusCircle, Trash2, Sparkles } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { QuizQuestion } from '@/lib/types';
-import { getNotes, type Note } from '@/lib/data';
+import { getNotes, getSubjects } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { generateQuiz } from '@/ai/flows/generate-quiz-flow';
@@ -19,13 +19,11 @@ import { Textarea } from '@/components/ui/textarea';
 export default function NewQuizPage() {
   const router = useRouter();
   const notes = getNotes();
-  const existingCategories = [...new Set(notes.map(note => note.category))];
+  const existingCategories = getSubjects();
   const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
   const [timeLimit, setTimeLimit] = useState(300); // Default 5 minutes
   const [questions, setQuestions] = useState<QuizQuestion[]>([
     { question: '', options: ['', '', '', ''], answerIndex: 0 },
@@ -73,29 +71,17 @@ export default function NewQuizPage() {
   };
 
   const handleSave = () => {
-    const finalCategory = isAddingNewCategory ? newCategory : category;
-    if (!title || !finalCategory || questions.some(q => !q.question || q.options.some(o => !o))) {
+    if (!title || !category || questions.some(q => !q.question || q.options.some(o => !o))) {
         alert('Please fill out all fields.');
         return;
     }
-    console.log('Saving quiz:', { title, category: finalCategory, timeLimit, questions });
+    console.log('Saving quiz:', { title, category, timeLimit, questions });
     alert('Quiz saved successfully! (Check console)');
     router.push('/manage-quizzes');
   };
-  
-  const handleCategoryChange = (value: string) => {
-    if (value === 'add-new') {
-      setIsAddingNewCategory(true);
-      setCategory(value);
-    } else {
-      setIsAddingNewCategory(false);
-      setCategory(value);
-    }
-  };
 
   const handleGenerateQuiz = async () => {
-      const finalCategory = isAddingNewCategory ? newCategory : category;
-      if (!finalCategory) {
+      if (!category) {
           toast({ title: "Subject is required", description: "Please select a subject for the quiz.", variant: "destructive" });
           return;
       }
@@ -119,7 +105,7 @@ export default function NewQuizPage() {
       setIsGenerating(true);
       try {
           const result = await generateQuiz({
-              category: finalCategory,
+              category: category,
               numQuestions,
               sourceText,
               sourceType: generationSource
@@ -199,7 +185,7 @@ export default function NewQuizPage() {
             </div>
              <div className="space-y-2">
                 <Label htmlFor="category">Subject (Category)</Label>
-                <Select onValueChange={handleCategoryChange} value={category}>
+                <Select onValueChange={setCategory} value={category}>
                     <SelectTrigger id="category">
                         <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
@@ -207,22 +193,9 @@ export default function NewQuizPage() {
                         {existingCategories.map(cat => (
                             <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
-                        <SelectItem value="add-new">
-                            <span className="flex items-center gap-2">
-                                <PlusCircle className="h-4 w-4" />
-                                Add new subject
-                            </span>
-                        </SelectItem>
                     </SelectContent>
                 </Select>
               </div>
-
-              {isAddingNewCategory && (
-                <div className="space-y-2 md:col-span-2 pl-1 animate-in fade-in-25">
-                  <Label htmlFor="new-category">New Subject Name</Label>
-                  <Input id="new-category" placeholder="e.g., European History" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
-                </div>
-              )}
             <div className="space-y-2">
                 <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
                 <Input id="time-limit" type="number" value={timeLimit / 60} onChange={(e) => setTimeLimit(parseInt(e.target.value) * 60)} />

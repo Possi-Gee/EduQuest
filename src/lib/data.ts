@@ -1,3 +1,4 @@
+
 import type { Note, Quiz, User, Student, Announcement } from './types';
 
 export const user: User = {
@@ -9,7 +10,7 @@ export const user: User = {
   ],
 };
 
-export const notes: Note[] = [
+let notes: Note[] = [
   {
     id: '1',
     category: 'History',
@@ -112,10 +113,15 @@ export const announcements: Announcement[] = [
   }
 ];
 
+// Combine all subjects/categories from notes and quizzes into one list
+let subjects = [...new Set([...notes.map(n => n.category), ...quizzes.map(q => q.category)])];
 
 // Helper functions to get data
 export const getNotes = () => notes;
 export const getNoteById = (id: string) => notes.find(note => note.id === id);
+export const deleteNote = (id: string) => {
+  notes = notes.filter(note => note.id !== id);
+}
 export const getQuizzes = () => quizzes;
 export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;
@@ -144,4 +150,16 @@ export const markAnnouncementsAsRead = () => {
         localStorage.setItem('readAnnouncementIds', JSON.stringify(allIds));
     }
     return allIds;
+}
+
+// Subject management
+export const getSubjects = () => [...subjects].sort();
+export const addSubject = (subject: string) => {
+  if (!subjects.find(s => s.toLowerCase() === subject.toLowerCase())) {
+    subjects.push(subject);
+  }
+}
+export const deleteSubject = (subject: string) => {
+  subjects = subjects.filter(s => s !== subject);
+  // Optional: Decide if you want to also remove the category from existing notes/quizzes
 }
