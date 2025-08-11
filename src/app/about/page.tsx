@@ -1,13 +1,22 @@
 
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Github, Linkedin, Twitter } from 'lucide-react';
+import { Github, Linkedin, Twitter, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
+       <Button onClick={() => router.back()} variant="outline" size="sm">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
       <div className="text-center">
         <h1 className="text-3xl font-bold">About the Creator</h1>
         <p className="text-muted-foreground">The mind behind EduQuest.</p>

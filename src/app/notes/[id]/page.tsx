@@ -1,11 +1,14 @@
+
+'use client';
+
 import { getNoteById } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export default function NoteDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const note = getNoteById(params.id);
 
   if (!note) {
@@ -14,11 +17,9 @@ export default function NoteDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="space-y-6">
-      <Button asChild variant="outline" size="sm">
-        <Link href="/notes">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Notes
-        </Link>
+      <Button onClick={() => router.back()} variant="outline" size="sm">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
       </Button>
       <Card>
         <CardHeader>

@@ -1,14 +1,25 @@
+
+'use client';
+
 import { getUser } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const user = getUser();
+  const router = useRouter();
 
   return (
     <div className="space-y-8">
+       <Button onClick={() => router.back()} variant="outline" size="sm" className="mb-4">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
       <div className="flex items-center gap-4">
         <Avatar className="h-24 w-24">
           <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="profile picture" />

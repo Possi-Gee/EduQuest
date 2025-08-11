@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, use, useEffect, useRef } from 'react';
@@ -8,7 +9,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Clock, Download, CheckCircle2, XCircle } from 'lucide-react';
-import Link from 'next/link';
 import { Certificate } from '@/components/certificate';
 import Confetti from '@/components/confetti';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -178,10 +178,10 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Link href="/quizzes" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+       <Button onClick={() => router.back()} variant="outline" size="sm">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Quizzes
-      </Link>
+        Back
+      </Button>
 
       <Card>
         <CardHeader>
