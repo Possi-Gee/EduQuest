@@ -165,7 +165,7 @@ export default function MorePage() {
         {isTeacherMode && (
              <GridItem href="/manage-announcements" icon={MessageSquare} label="Announcements" />
         )}
-        <GridItem action={() => {}} icon={LogOut} label="Logout" />
+        <GridItem action={() => alert('Logout functionality not implemented yet.')} icon={LogOut} label="Logout" />
       </div>
     </div>
   );
