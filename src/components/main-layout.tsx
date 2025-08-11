@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode, useState, useEffect } from 'react';
 import {
@@ -22,8 +22,8 @@ const studentNavLinks = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/notes', icon: BookOpen, label: 'Notes' },
   { href: '/quizzes', icon: ClipboardCheck, label: 'Quizzes' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
   { href: '/profile', icon: User, label: 'Profile' },
+  { href: '/settings', icon: MoreHorizontal, label: 'More' },
 ];
 
 const teacherNavLinks = [
@@ -31,7 +31,7 @@ const teacherNavLinks = [
   { href: '/manage-quizzes', icon: FilePlus, label: 'Manage Quizzes' },
   { href: '/manage-notes', icon: FilePenLine, label: 'Manage Notes' },
   { href: '/manage-students', icon: Users, label: 'Manage Students' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/settings', icon: MoreHorizontal, label: 'More' },
 ]
 
 function Logo() {

@@ -2,22 +2,18 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin, ArrowLeft, Bell, Settings as SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
-export default function SettingsPage() {
+export default function MorePage() {
   const { theme, setTheme } = useTheme();
-  const [notifications, setNotifications] = useState({
-    push: false,
-    email: false,
-  });
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const router = useRouter();
 
@@ -27,10 +23,6 @@ export default function SettingsPage() {
       setIsTeacherMode(JSON.parse(storedMode));
     }
   }, []);
-
-  const handleNotificationChange = (id: 'push' | 'email') => {
-    setNotifications((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
   
   const handleTeacherModeChange = (value: boolean) => {
     setIsTeacherMode(value);
@@ -48,9 +40,30 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Settings</h1>
+        <h1 className="text-3xl font-bold">More</h1>
         <p className="text-muted-foreground">Manage your account and app preferences.</p>
       </div>
+
+      {isTeacherMode && (
+         <Card>
+            <CardHeader>
+            <CardTitle>Teacher Actions</CardTitle>
+            <CardDescription>Manage teacher-specific features.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+                <Button asChild variant="outline" className="w-full justify-between">
+                    <Link href="/manage-announcements">
+                        <div className="flex items-center gap-2">
+                            <Bell className="h-4 w-4" />
+                            Manage Announcements
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                </Button>
+            </CardContent>
+      </Card>
+      )}
+     
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
@@ -123,71 +136,21 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Notifications</CardTitle>
-          <CardDescription>Manage how you receive notifications.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="push-notifications" className="font-normal">
-              <p>Push Notifications</p>
-              <p className="text-xs text-muted-foreground">Receive updates on new quizzes and content.</p>
-            </Label>
-            <Switch
-              id="push-notifications"
-              checked={notifications.push}
-              onCheckedChange={() => handleNotificationChange('push')}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="email-notifications" className="font-normal">
-              <p>Email Notifications</p>
-              <p className="text-xs text-muted-foreground">Get weekly summaries and updates.</p>
-            </Label>
-            <Switch
-              id="email-notifications"
-              checked={notifications.email}
-              onCheckedChange={() => handleNotificationChange('email')}
-            />
-          </div>
-        </CardContent>
-      </Card>
        <Card>
         <CardHeader>
             <CardTitle>About</CardTitle>
             <CardDescription>Information about the creator.</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          <Avatar className="h-24 w-24 mx-auto border-4 border-background">
-            <AvatarImage src="https://placehold.co/100x100.png" alt="App Creator" data-ai-hint="person face" />
-            <AvatarFallback>AC</AvatarFallback>
-          </Avatar>
-          <h3 className="mt-4 text-xl font-semibold">The Creator</h3>
-          <p className="text-muted-foreground mt-1">Full-Stack Developer & UI/UX Enthusiast</p>
-          <p className="mt-4 max-w-md mx-auto text-foreground/90">
-            I'm a passionate developer with a love for creating beautiful, functional, and user-centric applications. EduQuest is a project born from a desire to make learning more engaging and accessible for everyone.
-          </p>
-          <div className="mt-6 flex justify-center gap-4">
-            <Button asChild variant="outline" size="icon">
-              <Link href="#" target="_blank">
-                <Twitter className="h-4 w-4" />
-                <span className="sr-only">Twitter</span>
-              </Link>
+            <Button asChild variant="outline" className="w-full justify-between">
+                <Link href="/about">
+                    <div className="flex items-center gap-2">
+                        <Info className="h-4 w-4" />
+                        About the Creator
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
             </Button>
-            <Button asChild variant="outline" size="icon">
-              <Link href="#" target="_blank">
-                <Github className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="icon">
-              <Link href="#" target="_blank">
-                <Linkedin className="h-4 w-4" />
-                <span className="sr-only">LinkedIn</span>
-              </Link>
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>
