@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, LogOut, User, Info, Bell, Settings as SettingsIcon, GraduationCap } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, Bell, Settings as SettingsIcon, GraduationCap, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -90,7 +90,7 @@ export default function MorePage() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <GridItem href="/profile" icon={User} label="Profile" />
-         <GridItem isDialog icon={Bell} label="Notifications">
+         <GridItem isDialog icon={MessageSquare} label="Notifications">
              <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Notification Settings</DialogTitle>
