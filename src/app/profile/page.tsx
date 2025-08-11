@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const router = useRouter();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in-50">
        <Button onClick={() => router.back()} variant="outline" size="icon" className="mb-4">
         <ArrowLeft className="h-4 w-4" />
       </Button>

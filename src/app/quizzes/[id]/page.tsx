@@ -101,7 +101,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (isFinished) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50">
         {hasPassed ? (
           <div className="relative isolate">
               <div className="relative z-10">
@@ -177,7 +177,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in-50">
        <Button onClick={() => router.back()} variant="outline" size="icon">
         <ArrowLeft className="h-4 w-4" />
       </Button>

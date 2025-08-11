@@ -1,3 +1,4 @@
+
 import { getQuizzes } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ export default function QuizzesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-50">
       <h1 className="text-3xl font-bold">Quizzes</h1>
       <p className="text-muted-foreground">Test your knowledge. Choose a quiz to begin.</p>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

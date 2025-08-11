@@ -24,7 +24,7 @@ export default function SettingsPage() {
 
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
       <div className="text-center">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your account and app preferences.</p>

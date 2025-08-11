@@ -12,7 +12,7 @@ export default function AboutPage() {
   const router = useRouter();
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
        <Button onClick={() => router.back()} variant="outline" size="icon">
         <ArrowLeft className="h-4 w-4" />
       </Button>

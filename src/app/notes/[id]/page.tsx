@@ -18,7 +18,7 @@ export default function NoteDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-50">
       <Button onClick={() => router.back()} variant="outline" size="icon">
         <ArrowLeft className="h-4 w-4" />
       </Button>

@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from 'react';
@@ -14,7 +15,7 @@ export default function NotesPage() {
   const filteredNotes = activeTab === 'All' ? notes : notes.filter(note => note.category === activeTab);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-50">
       <h1 className="text-3xl font-bold">Notes</h1>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
