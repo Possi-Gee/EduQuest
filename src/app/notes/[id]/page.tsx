@@ -1,37 +1,48 @@
 
 'use client';
 
-import { getNoteById } from '@/lib/data';
+import { getNoteById, getQuizzes } from '@/lib/data';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BrainCircuit } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import type { Note } from '@/lib/types';
+import type { Note, Quiz } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
 
 export default function NoteDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
   const [note, setNote] = useState<Note | null>(null);
+  const [relatedQuizId, setRelatedQuizId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    const fetchNote = async () => {
+    const fetchNoteAndQuiz = async () => {
       setLoading(true);
-      const fetchedNote = await getNoteById(id);
+      const [fetchedNote, allQuizzes] = await Promise.all([
+        getNoteById(id),
+        getQuizzes(),
+      ]);
+
       if (!fetchedNote) {
         notFound();
       } else {
         setNote(fetchedNote);
+        // Find the first quiz that matches the note's category
+        const relatedQuiz = allQuizzes.find(quiz => quiz.category === fetchedNote.category);
+        if (relatedQuiz) {
+          setRelatedQuizId(relatedQuiz.id);
+        }
       }
       setLoading(false);
     };
-    fetchNote();
+    fetchNoteAndQuiz();
   }, [id]);
 
   if (loading) {
@@ -48,6 +59,9 @@ export default function NoteDetailPage() {
                     <Skeleton className="h-5 w-full" />
                     <Skeleton className="h-5 w-2/3" />
                 </CardContent>
+                <CardFooter>
+                    <Skeleton className="h-10 w-48" />
+                </CardFooter>
             </Card>
         </div>
      );
@@ -74,6 +88,17 @@ export default function NoteDetailPage() {
             </ReactMarkdown>
           </div>
         </CardContent>
+        {relatedQuizId && (
+          <CardFooter className="flex-col items-start gap-4 border-t pt-6">
+             <h3 className="text-lg font-semibold">Ready to test your knowledge?</h3>
+             <Button asChild>
+                <Link href={`/quizzes/${relatedQuizId}`}>
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    Take a Related Quiz
+                </Link>
+             </Button>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
