@@ -90,7 +90,7 @@ export default function MorePage() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <GridItem href="/profile" icon={User} label="Profile" />
-         <GridItem isDialog icon={MessageSquare} label="Notifications">
+         <GridItem isDialog icon={Bell} label="Notifications">
              <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Notification Settings</DialogTitle>
@@ -163,7 +163,7 @@ export default function MorePage() {
             </DialogContent>
         </GridItem>
         {isTeacherMode && (
-             <GridItem href="/manage-announcements" icon={Bell} label="Announcements" />
+             <GridItem href="/manage-announcements" icon={MessageSquare} label="Announcements" />
         )}
         <GridItem action={() => {}} icon={LogOut} label="Logout" />
       </div>
