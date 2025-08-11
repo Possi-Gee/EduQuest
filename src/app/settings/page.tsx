@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -17,11 +18,32 @@ export default function SettingsPage() {
     push: false,
     email: false,
   });
+  const [isTeacherMode, setIsTeacherMode] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedMode = localStorage.getItem('isTeacherMode');
+    if (storedMode) {
+      setIsTeacherMode(JSON.parse(storedMode));
+    }
+  }, []);
 
   const handleNotificationChange = (id: 'push' | 'email') => {
     setNotifications((prev) => ({ ...prev, [id]: !prev[id] }));
   };
-
+  
+  const handleTeacherModeChange = (value: boolean) => {
+    setIsTeacherMode(value);
+    localStorage.setItem('isTeacherMode', JSON.stringify(value));
+    // A simple way to refresh the layout without a full page reload
+    if (value) {
+      router.push('/dashboard');
+    } else {
+      router.push('/');
+    }
+    // A full reload might be better to ensure layout changes apply cleanly.
+    window.location.href = value ? '/dashboard' : '/';
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in-50">
@@ -50,6 +72,27 @@ export default function SettingsPage() {
             </Button>
         </CardContent>
       </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Mode</CardTitle>
+          <CardDescription>Switch between student and teacher views.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="teacher-mode" className="font-normal">
+              <p>Teacher Mode</p>
+              <p className="text-xs text-muted-foreground">Access the teacher dashboard.</p>
+            </Label>
+            <Switch
+              id="teacher-mode"
+              checked={isTeacherMode}
+              onCheckedChange={handleTeacherModeChange}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>

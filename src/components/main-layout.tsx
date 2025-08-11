@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings, Info } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { type ReactNode } from 'react';
+import { type ReactNode, useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -18,13 +18,20 @@ import { PanelLeft } from 'lucide-react';
 import { Avatar, AvatarFallback } from './ui/avatar';
 
 
-const navLinks = [
+const studentNavLinks = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/notes', icon: BookOpen, label: 'Notes' },
   { href: '/quizzes', icon: ClipboardCheck, label: 'Quizzes' },
   { href: '/settings', icon: Settings, label: 'Settings' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
+
+const teacherNavLinks = [
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/manage-quizzes', icon: FilePlus, label: 'Manage Quizzes' },
+  { href: '/manage-students', icon: Users, label: 'Manage Students' },
+  { href: '/settings', icon: Settings, label: 'Settings' },
+]
 
 function Logo() {
   return (
@@ -48,7 +55,7 @@ function Logo() {
   );
 }
 
-function DesktopNav() {
+function DesktopNav({ navLinks }: { navLinks: typeof studentNavLinks }) {
   const pathname = usePathname();
   return (
     <aside className="hidden md:flex flex-col w-64 border-r bg-card">
@@ -81,7 +88,7 @@ function DesktopNav() {
   );
 }
 
-function MobileNav() {
+function MobileNav({ navLinks }: { navLinks: typeof studentNavLinks }) {
   const pathname = usePathname();
   return (
     <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50">
@@ -105,10 +112,26 @@ function MobileNav() {
 }
 
 export default function MainLayout({ children }: { children: ReactNode }) {
-    const pathname = usePathname();
+    const [isTeacherMode, setIsTeacherMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const storedMode = localStorage.getItem('isTeacherMode');
+        if (storedMode) {
+            setIsTeacherMode(JSON.parse(storedMode));
+        }
+        setIsLoading(false);
+    }, []);
+
+    const navLinks = isTeacherMode ? teacherNavLinks : studentNavLinks;
+
+    if (isLoading) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+
   return (
       <div className="flex min-h-screen w-full bg-background">
-        <DesktopNav />
+        <DesktopNav navLinks={navLinks} />
         <div className="flex flex-col flex-1">
           <header className="flex md:hidden sticky top-0 items-center justify-between h-16 px-4 border-b bg-card z-10">
             <Logo />
@@ -117,7 +140,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
               {children}
           </main>
         </div>
-        <MobileNav />
+        <MobileNav navLinks={navLinks} />
       </div>
   );
 }
