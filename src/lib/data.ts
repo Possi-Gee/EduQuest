@@ -1,4 +1,4 @@
-import type { Note, Quiz, User, Student } from './types';
+import type { Note, Quiz, User, Student, Announcement } from './types';
 
 export const user: User = {
   name: 'Alex',
@@ -95,6 +95,21 @@ export const students: Student[] = [
   { id: '4', name: 'Lisa Ray', avatarUrl: 'https://placehold.co/100x100.png', quizzesTaken: 10, averageScore: 88 },
 ];
 
+export const announcements: Announcement[] = [
+  {
+    id: '1',
+    title: 'Welcome Back!',
+    content: 'Welcome back to the new semester! We have a lot of exciting things planned. Make sure to check the quiz schedule.',
+    date: '2024-08-01',
+  },
+  {
+    id: '2',
+    title: 'Mid-term Quizzes Coming Up',
+    content: 'Just a reminder that mid-term quizzes will be held next week. Good luck studying!',
+    date: '2024-07-25',
+  }
+];
+
 
 // Helper functions to get data
 export const getNotes = () => notes;
@@ -103,3 +118,4 @@ export const getQuizzes = () => quizzes;
 export const getQuizById = (id: string) => quizzes.find(quiz => quiz.id === id);
 export const getUser = () => user;
 export const getStudents = () => students;
+export const getAnnouncements = () => announcements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

@@ -1,17 +1,40 @@
-import { getUser } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getUser, getAnnouncements } from '@/lib/data';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, ClipboardCheck, Settings } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Settings, Megaphone } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   const user = getUser();
+  const announcements = getAnnouncements();
+  const latestAnnouncement = announcements[0];
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
       </div>
+
+      {latestAnnouncement && (
+        <Card className="bg-primary/10 border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <Megaphone className="h-6 w-6 text-primary" />
+              <div>
+                <CardTitle className="text-primary">{latestAnnouncement.title}</CardTitle>
+                <CardDescription className="text-primary/80">
+                  Posted on {new Date(latestAnnouncement.date).toLocaleDateString()}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-foreground/90">{latestAnnouncement.content}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <p className="text-muted-foreground">
         Ready to start your learning journey? Here are some quick links to get you started.
       </p>
