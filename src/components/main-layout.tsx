@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode } from 'react';
 import {
@@ -23,6 +23,7 @@ const navLinks = [
   { href: '/quizzes', icon: ClipboardCheck, label: 'Quizzes' },
   { href: '/settings', icon: Settings, label: 'Settings' },
   { href: '/profile', icon: User, label: 'Profile' },
+  { href: '/about', icon: Info, label: 'About' },
 ];
 
 function Logo() {
