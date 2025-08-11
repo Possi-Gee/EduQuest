@@ -17,7 +17,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EditQuizPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = params;
   const { toast } = useToast();
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -34,7 +33,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
         setLoading(true);
         try {
             const [currentQuiz, subjects] = await Promise.all([
-                getQuizById(id),
+                getQuizById(params.id),
                 getSubjects()
             ]);
 
@@ -57,7 +56,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
         }
     };
     fetchData();
-  }, [id, toast]);
+  }, [params.id, toast]);
 
   if (loading) {
     return <div className="max-w-4xl mx-auto space-y-6"><Skeleton className="h-96 w-full" /></div>;
@@ -107,7 +106,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
     }
     setIsSaving(true);
     try {
-        await updateQuiz(id, { title, category, timeLimit, questions });
+        await updateQuiz(params.id, { title, category, timeLimit, questions });
         toast({title: 'Success!', description: 'Quiz updated successfully!'});
         router.push('/manage-quizzes');
     } catch(error) {

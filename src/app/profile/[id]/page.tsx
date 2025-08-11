@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function StudentProfilePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = params;
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +20,7 @@ export default function StudentProfilePage({ params }: { params: { id: string } 
     const fetchStudent = async () => {
       setLoading(true);
       try {
-        const fetchedStudent = await getUserById(id);
+        const fetchedStudent = await getUserById(params.id);
         if (fetchedStudent) {
           setStudent(fetchedStudent);
         } else {
@@ -36,7 +35,7 @@ export default function StudentProfilePage({ params }: { params: { id: string } 
     };
 
     fetchStudent();
-  }, [id]);
+  }, [params.id]);
 
   if (loading) {
     return (
