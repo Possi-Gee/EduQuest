@@ -5,13 +5,12 @@ import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC2a762961f6217b18288599422f95c52c",
-  authDomain: "notespark-igm4h.firebaseapp.com",
-  projectId: "notespark-igm4h",
-  storageBucket: "notespark-igm4h.appspot.com",
-  messagingSenderId: "367373336345",
-  appId: "1:367373336345:web:a663473180c98f98363776",
-  measurementId: "G-8LRT0D1XN6"
+  apiKey: "AIzaSyBYyHWgmQ9JhuDJCw4vN6BhLppMX4aF-hU",
+  authDomain: "eduquest-mobile.firebaseapp.com",
+  projectId: "eduquest-mobile",
+  storageBucket: "eduquest-mobile.firebasestorage.app",
+  messagingSenderId: "297783818094",
+  appId: "1:297783818094:web:c44fbeed16413d7f24b37f"
 };
 
 
