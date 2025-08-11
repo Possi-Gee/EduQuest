@@ -1,12 +1,15 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, LogOut, User, Info, ChevronRight, Twitter, Github, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -26,6 +29,27 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your account and app preferences.</p>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+          <CardDescription>Manage your account settings.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+            <Button asChild variant="outline" className="w-full justify-between">
+                <Link href="/profile">
+                    <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Update Profile
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+                <LogOut className="h-4 w-4" />
+                Logout
+            </Button>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
@@ -83,6 +107,43 @@ export default function SettingsPage() {
               checked={notifications.email}
               onCheckedChange={() => handleNotificationChange('email')}
             />
+          </div>
+        </CardContent>
+      </Card>
+       <Card>
+        <CardHeader>
+            <CardTitle>About</CardTitle>
+            <CardDescription>Information about the creator.</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+          <Avatar className="h-24 w-24 mx-auto border-4 border-background">
+            <AvatarImage src="https://placehold.co/100x100.png" alt="App Creator" data-ai-hint="person face" />
+            <AvatarFallback>AC</AvatarFallback>
+          </Avatar>
+          <h3 className="mt-4 text-xl font-semibold">The Creator</h3>
+          <p className="text-muted-foreground mt-1">Full-Stack Developer & UI/UX Enthusiast</p>
+          <p className="mt-4 max-w-md mx-auto text-foreground/90">
+            I'm a passionate developer with a love for creating beautiful, functional, and user-centric applications. EduQuest is a project born from a desire to make learning more engaging and accessible for everyone.
+          </p>
+          <div className="mt-6 flex justify-center gap-4">
+            <Button asChild variant="outline" size="icon">
+              <Link href="#" target="_blank">
+                <Twitter className="h-4 w-4" />
+                <span className="sr-only">Twitter</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="icon">
+              <Link href="#" target="_blank">
+                <Github className="h-4 w-4" />
+                <span className="sr-only">GitHub</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="icon">
+              <Link href="#" target="_blank">
+                <Linkedin className="h-4 w-4" />
+                <span className="sr-only">LinkedIn</span>
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

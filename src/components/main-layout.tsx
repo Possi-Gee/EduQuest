@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +24,6 @@ const navLinks = [
   { href: '/quizzes', icon: ClipboardCheck, label: 'Quizzes' },
   { href: '/settings', icon: Settings, label: 'Settings' },
   { href: '/profile', icon: User, label: 'Profile' },
-  { href: '/about', icon: Info, label: 'About' },
 ];
 
 function Logo() {
