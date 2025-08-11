@@ -2,7 +2,7 @@ import { getUser } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, ClipboardCheck, Sparkles } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Settings } from 'lucide-react';
 
 export default function Home() {
   const user = getUser();
@@ -46,15 +46,15 @@ export default function Home() {
         </Card>
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-medium">AI Summarizer</CardTitle>
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-base font-medium">Settings</CardTitle>
+            <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Get quick summaries of notes from any URL.
+              Customize your app experience.
             </p>
             <Button asChild size="sm" className="mt-4">
-              <Link href="/summarize">Summarize Note</Link>
+              <Link href="/settings">Go to Settings</Link>
             </Button>
           </CardContent>
         </Card>
