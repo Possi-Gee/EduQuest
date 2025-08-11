@@ -15,9 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ManageQuizzesPage() {
   const quizzes = getQuizzes();
+  const router = useRouter();
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -28,7 +30,7 @@ export default function ManageQuizzesPage() {
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Manage Quizzes</h1>
-        <Button>
+        <Button onClick={() => router.push('/manage-quizzes/new')}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Create New Quiz
         </Button>
@@ -72,7 +74,7 @@ export default function ManageQuizzesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/manage-quizzes/edit/${quiz.id}`)}>Edit</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
