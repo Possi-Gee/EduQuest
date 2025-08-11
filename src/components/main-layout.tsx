@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, Megaphone } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode, useState, useEffect } from 'react';
 import {
@@ -28,7 +28,6 @@ const studentNavLinks = [
 
 const teacherNavLinks = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/manage-announcements', icon: Megaphone, label: 'Announcements' },
   { href: '/manage-quizzes', icon: FilePlus, label: 'Manage Quizzes' },
   { href: '/manage-notes', icon: FilePenLine, label: 'Manage Notes' },
   { href: '/manage-students', icon: Users, label: 'Manage Students' },
