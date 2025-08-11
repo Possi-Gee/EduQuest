@@ -64,7 +64,7 @@ export default function Home() {
                           {announcement.content}
                         </p>
                          <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(announcement.date).toLocaleDateString()}
+                          {new Date(announcement.date).toLocaleString()}
                         </p>
                       </div>
                     </div>
