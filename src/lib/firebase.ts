@@ -5,7 +5,7 @@ import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  apiKey: "AIzaSyC2a762961f6217b18288599422f95c52c",
   authDomain: "notespark-igm4h.firebaseapp.com",
   projectId: "notespark-igm4h",
   storageBucket: "notespark-igm4h.appspot.com",
