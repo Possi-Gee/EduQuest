@@ -15,15 +15,17 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ManageNotesPage() {
   const notes = getNotes();
+  const router = useRouter();
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Manage Notes</h1>
-        <Button>
+        <Button onClick={() => router.push('/manage-notes/new')}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Create New Note
         </Button>
@@ -63,7 +65,7 @@ export default function ManageNotesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/manage-notes/edit/${note.id}`)}>Edit</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
