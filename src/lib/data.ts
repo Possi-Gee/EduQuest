@@ -137,3 +137,11 @@ export const deleteAnnouncement = (id: string) => {
     announcements.splice(index, 1);
   }
 };
+
+export const markAnnouncementsAsRead = () => {
+    const allIds = getAnnouncements().map(a => a.id);
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('readAnnouncementIds', JSON.stringify(allIds));
+    }
+    return allIds;
+}

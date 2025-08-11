@@ -1,36 +1,98 @@
-import { getUser, getAnnouncements } from '@/lib/data';
+
+'use client';
+
+import { getUser, getAnnouncements, markAnnouncementsAsRead } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpen, ClipboardCheck, Settings, Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const user = getUser();
-  const announcements = getAnnouncements();
-  const latestAnnouncement = announcements[0];
+  const allAnnouncements = getAnnouncements();
+  const [hasUnread, setHasUnread] = useState(false);
+  const [announcements, setAnnouncements] = useState(allAnnouncements);
+
+  useEffect(() => {
+    // In a real app, you'd fetch read status from a user-specific store.
+    // For this demo, we'll use localStorage.
+    const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
+    const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
+    setHasUnread(unreadCount > 0);
+    setAnnouncements(allAnnouncements);
+  }, []);
+
+  const handleBellClick = () => {
+    const readIds = markAnnouncementsAsRead();
+    setHasUnread(false);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className="relative" onClick={handleBellClick}>
+              <Bell className="h-5 w-5" />
+              {hasUnread && (
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500" />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Announcements</h4>
+                <p className="text-sm text-muted-foreground">
+                  Latest updates from your teacher.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                {announcements.length > 0 ? (
+                  announcements.slice(0, 3).map((announcement) => (
+                     <div key={announcement.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
+                      <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
+                      <div className="grid gap-1">
+                        <p className="text-sm font-medium leading-none">
+                          {announcement.title}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {announcement.content}
+                        </p>
+                         <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(announcement.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No new announcements.</p>
+                )}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      {latestAnnouncement && (
+      {announcements[0] && (
         <Card className="bg-primary/10 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-4">
               <Bell className="h-6 w-6 text-primary" />
               <div>
-                <CardTitle className="text-primary">{latestAnnouncement.title}</CardTitle>
+                <CardTitle className="text-primary">{announcements[0].title}</CardTitle>
                 <CardDescription className="text-primary/80">
-                  Posted on {new Date(latestAnnouncement.date).toLocaleDateString()}
+                  Posted on {new Date(announcements[0].date).toLocaleDateString()}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-foreground/90">{latestAnnouncement.content}</p>
+            <p className="text-foreground/90">{announcements[0].content}</p>
           </CardContent>
         </Card>
       )}
