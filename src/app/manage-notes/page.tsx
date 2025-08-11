@@ -74,8 +74,8 @@ export default function ManageNotesPage() {
            <Dialog open={isSubjectDialogOpen} onOpenChange={setIsSubjectDialogOpen}>
                 <DialogTrigger asChild>
                     <Button variant="outline">
-                        <FolderKanban className="mr-2 h-4 w-4" />
-                        Manage Subjects
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create New Subject
                     </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -107,10 +107,6 @@ export default function ManageNotesPage() {
                     </div>
                 </DialogContent>
             </Dialog>
-            <Button onClick={() => router.push('/manage-notes/new')}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create New Note
-            </Button>
         </div>
       </div>
 
