@@ -40,16 +40,10 @@ function Logo() {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        fill="currentColor"
         className="h-6 w-6"
       >
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
+        <path d="M12 2L1 9l11 7 9-5.23V20h2V8.5L12 2zM3.31 9.93L12 15.3l8.69-5.37L12 4.47 3.31 9.93zM12 17.3l-7-4.37v3.54l7 4.37 7-4.37v-3.54l-7 4.37z" />
       </svg>
       <span className="truncate">EduQuest</span>
     </Link>
