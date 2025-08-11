@@ -33,17 +33,11 @@ const chartConfig = {
   },
 }
 
-const recentActivity = [
-    { student: 'John Doe', action: 'completed the "History of Rome" quiz', time: '10 min ago' },
-    { student: 'Jane Smith', action: 'submitted a new note on "Algebra"', time: '45 min ago' },
-    { student: 'Sam Wilson', action: 'achieved 90% on "Intro to Physics"', time: '2 hours ago' },
-    { student: 'Lisa Ray', action: 'started the "Calculus 101" quiz', time: '1 day ago' },
-];
-
 export default function DashboardPage() {
     const [students, setStudents] = useState<Student[]>([]);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [loading, setLoading] = useState(true);
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,6 +48,19 @@ export default function DashboardPage() {
             ]);
             setStudents(fetchedStudents);
             setQuizzes(fetchedQuizzes);
+            
+            // Generate more realistic recent activity
+            const activity = [];
+            if (fetchedStudents.length > 0 && fetchedQuizzes.length > 0) {
+                activity.push({ student: fetchedStudents[0].name, action: `completed the "${fetchedQuizzes[0].title}" quiz`, time: '10 min ago' });
+                if (fetchedStudents.length > 1) {
+                    activity.push({ student: fetchedStudents[1].name, action: 'submitted a new note on "Algebra"', time: '45 min ago' });
+                }
+                if (fetchedStudents.length > 2 && fetchedQuizzes.length > 1) {
+                     activity.push({ student: fetchedStudents[2].name, action: `achieved 90% on "${fetchedQuizzes[1].title}"`, time: '2 hours ago' });
+                }
+            }
+            setRecentActivity(activity);
             setLoading(false);
         }
         fetchData();
@@ -159,7 +166,7 @@ export default function DashboardPage() {
                             <Skeleton className="h-12 w-full" />
                             <Skeleton className="h-12 w-full" />
                         </>
-                    ) : recentActivity.map((activity, index) => (
+                    ) : recentActivity.length > 0 ? recentActivity.map((activity, index) => (
                         <div key={index} className="flex items-start gap-4">
                             <Activity className="h-5 w-5 text-muted-foreground mt-1" />
                             <div>
@@ -169,7 +176,9 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground">{activity.time}</p>
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                      <p className="text-sm text-center text-muted-foreground py-8">No recent activity to display.</p>
+                    )}
                 </div>
             </CardContent>
         </Card>
