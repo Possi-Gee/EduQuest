@@ -2,7 +2,7 @@ import { getUser, getAnnouncements } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, ClipboardCheck, Settings, Megaphone } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Settings, Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
         <Card className="bg-primary/10 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-4">
-              <Megaphone className="h-6 w-6 text-primary" />
+              <Bell className="h-6 w-6 text-primary" />
               <div>
                 <CardTitle className="text-primary">{latestAnnouncement.title}</CardTitle>
                 <CardDescription className="text-primary/80">
