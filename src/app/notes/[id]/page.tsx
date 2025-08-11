@@ -3,7 +3,7 @@
 
 import { getNoteById, getQuizzes } from '@/lib/data';
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BrainCircuit } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -59,9 +59,6 @@ export default function NoteDetailPage() {
                     <Skeleton className="h-5 w-full" />
                     <Skeleton className="h-5 w-2/3" />
                 </CardContent>
-                <CardFooter>
-                    <Skeleton className="h-10 w-48" />
-                </CardFooter>
             </Card>
         </div>
      );
@@ -87,18 +84,18 @@ export default function NoteDetailPage() {
               {note.content}
             </ReactMarkdown>
           </div>
+           {relatedQuizId && (
+            <div className="mt-8 border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Ready to test your knowledge?</h3>
+                <Button asChild>
+                    <Link href={`/quizzes/${relatedQuizId}`}>
+                        <BrainCircuit className="mr-2 h-4 w-4" />
+                        Take a Related Quiz
+                    </Link>
+                </Button>
+            </div>
+          )}
         </CardContent>
-        {relatedQuizId && (
-          <CardFooter className="flex-col items-start gap-4 border-t pt-6">
-             <h3 className="text-lg font-semibold">Ready to test your knowledge?</h3>
-             <Button asChild>
-                <Link href={`/quizzes/${relatedQuizId}`}>
-                    <BrainCircuit className="mr-2 h-4 w-4" />
-                    Take a Related Quiz
-                </Link>
-             </Button>
-          </CardFooter>
-        )}
       </Card>
     </div>
   );
