@@ -7,16 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Sparkles } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { QuizQuestion } from '@/lib/types';
-import { getNotes } from '@/lib/data';
+import { getNotes, type Note } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { generateQuiz } from '@/ai/flows/generate-quiz-flow';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function NewQuizPage() {
   const router = useRouter();
   const notes = getNotes();
   const existingCategories = [...new Set(notes.map(note => note.category))];
+  const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
@@ -26,6 +30,13 @@ export default function NewQuizPage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([
     { question: '', options: ['', '', '', ''], answerIndex: 0 },
   ]);
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationSource, setGenerationSource] = useState<'topic' | 'note'>('topic');
+  const [generationTopic, setGenerationTopic] = useState('');
+  const [generationNoteId, setGenerationNoteId] = useState('');
+  const [numQuestions, setNumQuestions] = useState(4);
+
 
   const handleQuestionChange = (index: number, value: string) => {
     const newQuestions = [...questions];
@@ -82,15 +93,103 @@ export default function NewQuizPage() {
     }
   };
 
+  const handleGenerateQuiz = async () => {
+      const finalCategory = isAddingNewCategory ? newCategory : category;
+      if (!finalCategory) {
+          toast({ title: "Subject is required", description: "Please select a subject for the quiz.", variant: "destructive" });
+          return;
+      }
+      
+      let sourceText = '';
+      if (generationSource === 'topic') {
+        if (!generationTopic) {
+            toast({ title: "Topic is required", description: "Please enter a topic to generate the quiz.", variant: "destructive" });
+            return;
+        }
+        sourceText = generationTopic;
+      } else {
+        if (!generationNoteId) {
+            toast({ title: "Note is required", description: "Please select a note to generate the quiz from.", variant: "destructive" });
+            return;
+        }
+        const selectedNote = notes.find(n => n.id === generationNoteId);
+        sourceText = selectedNote?.content || '';
+      }
+
+      setIsGenerating(true);
+      try {
+          const result = await generateQuiz({
+              category: finalCategory,
+              numQuestions,
+              sourceText,
+              sourceType: generationSource
+          });
+          setTitle(result.title);
+          setQuestions(result.questions);
+      } catch (error) {
+          console.error("Error generating quiz:", error);
+          toast({ title: 'Generation Failed', description: 'There was an error generating the quiz.', variant: 'destructive' });
+      } finally {
+          setIsGenerating(false);
+      }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in-50">
       <Button onClick={() => router.back()} variant="outline" size="icon" className="mb-4">
         <ArrowLeft className="h-4 w-4" />
       </Button>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>AI-Powered Quiz Generation</CardTitle>
+          <CardDescription>Generate a quiz automatically based on a topic or an existing note.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+           <RadioGroup value={generationSource} onValueChange={(v) => setGenerationSource(v as 'topic' | 'note')} className="flex gap-4">
+              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
+                <RadioGroupItem value="topic" id="topic" />
+                From Topic
+              </Label>
+              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
+                <RadioGroupItem value="note" id="note" />
+                From Note
+              </Label>
+           </RadioGroup>
+
+           {generationSource === 'topic' ? (
+                <div className="space-y-2">
+                    <Label htmlFor="topic-input">Topic</Label>
+                    <Textarea id="topic-input" placeholder="e.g., The basics of Quantum Physics" value={generationTopic} onChange={(e) => setGenerationTopic(e.target.value)} />
+                </div>
+           ) : (
+                <div className="space-y-2">
+                    <Label htmlFor="note-select">Note</Label>
+                    <Select value={generationNoteId} onValueChange={setGenerationNoteId}>
+                        <SelectTrigger id="note-select"><SelectValue placeholder="Select a note..." /></SelectTrigger>
+                        <SelectContent>
+                            {notes.map(note => <SelectItem key={note.id} value={note.id}>{note.title}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+           )}
+            <div className="space-y-2">
+              <Label htmlFor="num-questions">Number of Questions</Label>
+              <Input id="num-questions" type="number" min="1" max="10" value={numQuestions} onChange={(e) => setNumQuestions(parseInt(e.target.value))} />
+            </div>
+
+            <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              {isGenerating ? 'Generating Quiz...' : 'Generate with AI'}
+            </Button>
+        </CardContent>
+      </Card>
+
+
       <Card>
         <CardHeader>
           <CardTitle>Create New Quiz</CardTitle>
-          <CardDescription>Design a new quiz for your students.</CardDescription>
+          <CardDescription>Design a new quiz for your students. You can start from scratch or generate one with AI above.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
