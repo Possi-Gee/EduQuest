@@ -161,7 +161,7 @@ export default function NewQuizPage() {
            )}
             <div className="space-y-2">
               <Label htmlFor="num-questions">Number of Questions</Label>
-              <Input id="num-questions" type="number" min="1" max="10" value={numQuestions} onChange={(e) => setNumQuestions(parseInt(e.target.value))} />
+              <Input id="num-questions" type="number" min="1" max="10" value={numQuestions} onChange={(e) => setNumQuestions(parseInt(e.target.value) || 1)} />
             </div>
 
             <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
@@ -241,3 +241,5 @@ export default function NewQuizPage() {
     </div>
   );
 }
+
+    
