@@ -24,8 +24,8 @@ export default function NoteDetailPage({ params }: { params: { id: string } }) {
         notFound();
       } else {
         setNote(fetchedNote);
-        setLoading(false);
       }
+      setLoading(false);
     };
     fetchNote();
   }, [id]);

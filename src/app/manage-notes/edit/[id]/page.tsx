@@ -18,7 +18,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function EditNotePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  
+  const { id } = params;
+
   const [note, setNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -32,7 +33,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
       setLoading(true);
       try {
         const [currentNote, subjects] = await Promise.all([
-          getNoteById(params.id),
+          getNoteById(id),
           getSubjects()
         ]);
 
@@ -55,7 +56,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     };
 
     fetchData();
-  }, [params.id, toast]);
+  }, [id, toast]);
 
   if (loading) {
     return (
@@ -96,7 +97,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     }
     setIsSaving(true);
     try {
-        await updateNote(params.id, { title, content, category });
+        await updateNote(id, { title, content, category });
         toast({ title: 'Success!', description: 'Note updated successfully.' });
         router.push('/manage-notes');
     } catch(error) {
