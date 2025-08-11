@@ -41,7 +41,7 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">Total Students</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -51,7 +51,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">Active Quizzes</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
@@ -61,7 +61,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+5 since last week</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base font-medium">Average Score</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
