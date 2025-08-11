@@ -78,7 +78,7 @@ export default function Home() {
         </Popover>
       </div>
 
-      {announcements[0] && (
+      {announcements.length > 0 && (
         <Card className="bg-primary/10 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-4">
