@@ -121,7 +121,9 @@ export default function EditQuizPage() {
   
   const handleTimeLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setTimeLimit(value === '' ? 0 : parseInt(value, 10) * 60);
+    // Prevent NaN by defaulting to 0 if input is empty or invalid
+    const minutes = parseInt(value, 10);
+    setTimeLimit(isNaN(minutes) ? 0 : minutes * 60);
   };
 
   return (
@@ -155,7 +157,15 @@ export default function EditQuizPage() {
               </div>
             <div className="space-y-2">
                 <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
-                <Input id="time-limit" type="number" value={timeLimit > 0 ? timeLimit / 60 : ''} onChange={handleTimeLimitChange} disabled={isSaving} />
+                <Input 
+                  id="time-limit" 
+                  type="number" 
+                  value={timeLimit > 0 ? timeLimit / 60 : ''} 
+                  onChange={handleTimeLimitChange} 
+                  placeholder="e.g., 10"
+                  min="0"
+                  disabled={isSaving} 
+                />
             </div>
           </div>
           

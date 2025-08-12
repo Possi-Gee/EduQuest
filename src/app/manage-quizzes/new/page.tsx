@@ -138,6 +138,12 @@ export default function NewQuizPage() {
           setIsGenerating(false);
       }
   };
+  
+  const handleTimeLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const minutes = parseInt(value, 10);
+    setTimeLimit(isNaN(minutes) || minutes < 0 ? 0 : minutes * 60);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in-50">
@@ -230,7 +236,14 @@ export default function NewQuizPage() {
               </div>
             <div className="space-y-2">
                 <Label htmlFor="time-limit">Time Limit (in minutes)</Label>
-                <Input id="time-limit" type="number" value={timeLimit / 60} onChange={(e) => setTimeLimit(parseInt(e.target.value) * 60)} />
+                <Input 
+                  id="time-limit" 
+                  type="number" 
+                  value={timeLimit > 0 ? timeLimit / 60 : ''} 
+                  onChange={handleTimeLimitChange}
+                  placeholder="e.g., 5"
+                  min="0"
+                />
             </div>
           </div>
           
