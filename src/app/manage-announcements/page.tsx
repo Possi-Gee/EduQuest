@@ -20,6 +20,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -82,17 +93,15 @@ export default function ManageAnnouncementsPage() {
   };
   
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this announcement?')) {
-        try {
-            await deleteAnnouncementFromData(id);
-            await fetchAnnouncements();
-            toast({
-                title: 'Deleted',
-                description: 'The announcement has been removed.',
-            });
-        } catch (error) {
-             toast({ title: 'Error', description: 'Failed to delete announcement.', variant: 'destructive'});
-        }
+    try {
+        await deleteAnnouncementFromData(id);
+        await fetchAnnouncements();
+        toast({
+            title: 'Deleted',
+            description: 'The announcement has been removed.',
+        });
+    } catch (error) {
+         toast({ title: 'Error', description: 'Failed to delete announcement.', variant: 'destructive'});
     }
   }
 
@@ -176,10 +185,28 @@ export default function ManageAnnouncementsPage() {
                       Posted on {new Date(announcement.date).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80" onClick={() => handleDelete(announcement.id)}>
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                  </Button>
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/80">
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                          </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the announcement.
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(announcement.id)}>
+                                  Continue
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
                 </CardContent>
               </Card>
             ))
