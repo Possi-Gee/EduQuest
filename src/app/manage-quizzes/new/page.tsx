@@ -141,8 +141,22 @@ export default function NewQuizPage() {
   
   const handleTimeLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    // Prevent NaN by defaulting to 0 if input is empty or invalid
     const minutes = parseInt(value, 10);
     setTimeLimit(isNaN(minutes) || minutes < 0 ? 0 : minutes * 60);
+  };
+
+  const handleNumQuestionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (isNaN(value)) {
+        setNumQuestions(1);
+    } else if (value > 10) {
+        setNumQuestions(10);
+    } else if (value < 1) {
+        setNumQuestions(1);
+    } else {
+        setNumQuestions(value);
+    }
   };
 
   return (
@@ -199,7 +213,7 @@ export default function NewQuizPage() {
            )}
             <div className="space-y-2">
               <Label htmlFor="num-questions">Number of Questions</Label>
-              <Input id="num-questions" type="number" min="1" max="10" value={numQuestions} onChange={(e) => setNumQuestions(parseInt(e.target.value) || 1)} />
+              <Input id="num-questions" type="number" min="1" max="10" value={numQuestions} onChange={handleNumQuestionsChange} />
             </div>
 
             <Button onClick={handleGenerateQuiz} disabled={isGenerating}>
@@ -288,4 +302,5 @@ export default function NewQuizPage() {
       </Card>
     </div>
   );
-}
+
+    
