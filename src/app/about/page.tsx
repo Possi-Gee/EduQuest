@@ -50,7 +50,7 @@ export default function AboutPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="icon">
-              <Link href="https://www.facebook.com/PossiGee" target="_blank">
+              <Link href="https://www.facebook.com/profile.php?id=61553817202599" target="_blank">
                 <Facebook className="h-4 w-4" />
                 <span className="sr-only">Facebook</span>
               </Link>
