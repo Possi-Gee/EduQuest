@@ -26,16 +26,31 @@ function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void
   };
 
   const letterVariants = {
-    hidden: { y: 50, opacity: 0 },
+    fromTop: { y: -50, opacity: 0 },
+    fromBottom: { y: 50, opacity: 0 },
+    fromLeft: { x: -50, opacity: 0 },
+    fromRight: { x: 50, opacity: 0 },
     visible: {
+      x: 0,
       y: 0,
       opacity: 1,
       transition: {
         type: 'spring',
-        stiffness: 100,
+        stiffness: 120,
+        damping: 12,
       },
     },
   };
+  
+  const letterAnimationOrder = [
+      letterVariants.fromLeft,
+      letterVariants.fromTop,
+      letterVariants.fromRight,
+      letterVariants.fromBottom,
+      letterVariants.fromLeft,
+      letterVariants.fromTop,
+      letterVariants.fromRight,
+  ]
 
   const logoVariants = {
      hidden: { scale: 0, rotate: -180 },
@@ -84,7 +99,13 @@ function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void
         </motion.div>
         <motion.h1 className="text-4xl font-bold flex" variants={containerVariants}>
           {appName.split("").map((char, index) => (
-            <motion.span key={index} variants={letterVariants}>
+            <motion.span 
+                key={index}
+                custom={index}
+                initial={letterAnimationOrder[index % letterAnimationOrder.length]}
+                animate="visible"
+                variants={letterVariants}
+             >
               {char}
             </motion.span>
           ))}
@@ -143,16 +164,21 @@ export default function LoginPage() {
   
   const logoContainerVariants = {
     splash: { y: 0, scale: 1 },
-    login: { y: -150, scale: 0.8, transition: { duration: 0.8, ease: 'easeInOut' } },
+    login: { y: -200, scale: 0.8, transition: { duration: 0.8, ease: 'easeInOut' } },
   };
 
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
+        <AnimatePresence>
+            {showSplash && <SplashScreen onAnimationComplete={() => {}} />}
+        </AnimatePresence>
+
         <motion.div
             animate={showSplash ? "splash" : "login"}
             variants={logoContainerVariants}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 absolute"
+            style={{ top: '50%', y: '-50%'}}
         >
             <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -225,3 +251,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
