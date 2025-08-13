@@ -44,7 +44,7 @@ export default function AboutPage() {
           </div>
           <div className="mt-6 flex justify-center gap-4">
             <Button asChild variant="outline" size="icon">
-              <Link href="https://twitter.com/PossiGee55175467" target="_blank">
+              <Link href="https://x.com/PossiGee55175467" target="_blank">
                 <Twitter className="h-4 w-4" />
                 <span className="sr-only">X (Twitter)</span>
               </Link>
