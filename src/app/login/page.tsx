@@ -69,9 +69,10 @@ function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void
 
   return (
     <motion.div 
-        className="h-screen w-full flex flex-col items-center justify-center bg-background"
+        className="h-screen w-full flex flex-col items-center justify-center bg-background absolute inset-0"
         initial="hidden"
         animate="visible"
+        exit={{ opacity: 0, transition: { duration: 0.5 } }}
         variants={containerVariants}
         onAnimationComplete={onAnimationComplete}
     >
@@ -127,9 +128,10 @@ export default function LoginPage() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
+    // This now just controls when the transition from splash to login begins
     const timer = setTimeout(() => {
         setShowSplash(false);
-    }, 3000); // Splash screen duration
+    }, 2500); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -163,22 +165,26 @@ export default function LoginPage() {
   };
   
   const logoContainerVariants = {
-    splash: { y: 0, scale: 1 },
-    login: { y: -200, scale: 0.8, transition: { duration: 0.8, ease: 'easeInOut' } },
+    initial: { y: '0%', scale: 1 },
+    animate: { 
+      y: '-110%', // Move it higher
+      scale: 0.9, 
+      transition: { duration: 0.8, ease: 'easeInOut', delay: 0.5 } 
+    },
   };
 
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden relative">
         <AnimatePresence>
             {showSplash && <SplashScreen onAnimationComplete={() => {}} />}
         </AnimatePresence>
 
         <motion.div
-            animate={showSplash ? "splash" : "login"}
+            initial="initial"
+            animate={!showSplash ? "animate" : "initial"}
             variants={logoContainerVariants}
-            className="flex items-center gap-2 absolute"
-            style={{ top: '50%', y: '-50%'}}
+            className="flex items-center gap-2"
         >
             <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -202,10 +208,9 @@ export default function LoginPage() {
                  <motion.div 
                     key="login-form"
                     initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.3 } }}
+                    animate={{ opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.8 } }}
                     exit={{ opacity: 0 }}
                     className="w-full max-w-md mx-4 absolute"
-                    style={{ top: '50%', transform: 'translateY(-25%)' }}
                 >
                     <Card>
                         <CardHeader className="text-center">
@@ -251,4 +256,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
