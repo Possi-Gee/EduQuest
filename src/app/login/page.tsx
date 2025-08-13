@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,105 @@ import { useToast } from '@/hooks/use-toast';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import Link from 'next/link';
+import { AnimatePresence, motion } from 'framer-motion';
+
+function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onAnimationComplete();
+    }, 4000); // Total animation time
+    return () => clearTimeout(timer);
+  }, [onAnimationComplete]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+    toTop: {
+      y: -150,
+      scale: 0.8,
+      transition: {
+        duration: 0.8,
+        ease: 'easeInOut',
+      },
+    }
+  };
+
+  const letterVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+      },
+    },
+  };
+
+  const logoVariants = {
+     hidden: { scale: 0, rotate: -180 },
+     visible: {
+       scale: 1,
+       rotate: 0,
+       transition: {
+         type: 'spring',
+         duration: 1.5,
+       },
+     }
+  }
+  
+  const appName = "EduQuest";
+
+  return (
+    <motion.div 
+        className="h-screen w-full flex items-center justify-center bg-background"
+        initial="visible"
+        animate="toTop"
+        variants={{
+             visible: { opacity: 1 },
+             toTop: { opacity: 1 }
+        }}
+        onAnimationComplete={onAnimationComplete}
+    >
+      <motion.div
+        className="flex items-center gap-2"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={logoVariants}>
+           <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-12 w-12 text-primary"
+            >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+            </svg>
+        </motion.div>
+        <motion.h1 className="text-4xl font-bold flex" variants={containerVariants}>
+          {appName.split("").map((char, index) => (
+            <motion.span key={index} variants={letterVariants}>
+              {char}
+            </motion.span>
+          ))}
+        </motion.h1>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,6 +119,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -50,45 +150,75 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-md mx-4">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome Back!</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-          <Button onClick={handleLogin} disabled={isLoading} className="w-full">
-            {isLoading ? 'Logging in...' : 'Login'}
-          </Button>
-          <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-primary hover:underline">
-              Sign up
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <AnimatePresence>
+        {showSplash ? (
+            <motion.div key="splash" exit={{ opacity: 0, transition: { duration: 0.5 } }}>
+                <SplashScreen onAnimationComplete={() => setShowSplash(false)} />
+            </motion.div>
+        ) : (
+             <motion.div 
+                key="login"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { duration: 0.5, delay: 0.5 } }}
+                className="flex flex-col items-center justify-center min-h-screen bg-background"
+            >
+                <div className="flex items-center gap-2 mb-8 -mt-32">
+                     <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-10 w-10 text-primary"
+                    >
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                    <h1 className="text-3xl font-bold">EduQuest</h1>
+                </div>
+                <Card className="w-full max-w-md mx-4">
+                    <CardHeader className="text-center">
+                    <CardTitle className="text-2xl">Welcome Back!</CardTitle>
+                    <CardDescription>Enter your credentials to access your account.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={isLoading}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
+                        />
+                    </div>
+                    <Button onClick={handleLogin} disabled={isLoading} className="w-full">
+                        {isLoading ? 'Logging in...' : 'Login'}
+                    </Button>
+                    <div className="text-center text-sm text-muted-foreground">
+                        Don't have an account?{' '}
+                        <Link href="/signup" className="text-primary hover:underline">
+                        Sign up
+                        </Link>
+                    </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+        )}
+    </AnimatePresence>
   );
 }

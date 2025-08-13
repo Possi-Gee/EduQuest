@@ -13,6 +13,7 @@ import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -66,7 +67,12 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex items-center justify-center min-h-screen bg-background"
+    >
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Create an Account</CardTitle>
@@ -133,6 +139,6 @@ export default function SignupPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }
