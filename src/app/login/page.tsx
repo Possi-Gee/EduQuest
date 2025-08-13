@@ -14,29 +14,15 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 
 function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void }) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onAnimationComplete();
-    }, 4000); // Total animation time
-    return () => clearTimeout(timer);
-  }, [onAnimationComplete]);
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
+        delayChildren: 0.5,
       },
     },
-    toTop: {
-      y: -150,
-      scale: 0.8,
-      transition: {
-        duration: 0.8,
-        ease: 'easeInOut',
-      },
-    }
   };
 
   const letterVariants = {
@@ -59,6 +45,7 @@ function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void
        transition: {
          type: 'spring',
          duration: 1.5,
+         delay: 0.2,
        },
      }
   }
@@ -67,13 +54,10 @@ function SplashScreen({ onAnimationComplete }: { onAnimationComplete: () => void
 
   return (
     <motion.div 
-        className="h-screen w-full flex items-center justify-center bg-background"
-        initial="visible"
-        animate="toTop"
-        variants={{
-             visible: { opacity: 1 },
-             toTop: { opacity: 1 }
-        }}
+        className="h-screen w-full flex flex-col items-center justify-center bg-background"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
         onAnimationComplete={onAnimationComplete}
     >
       <motion.div
@@ -121,6 +105,14 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        setShowSplash(false);
+    }, 3000); // Splash screen duration
+    return () => clearTimeout(timer);
+  }, []);
+
+
   const handleLogin = async () => {
     setIsLoading(true);
     try {
@@ -148,77 +140,88 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+  
+  const logoContainerVariants = {
+    splash: { y: 0, scale: 1 },
+    login: { y: -150, scale: 0.8, transition: { duration: 0.8, ease: 'easeInOut' } },
+  };
+
 
   return (
-    <AnimatePresence>
-        {showSplash ? (
-            <motion.div key="splash" exit={{ opacity: 0, transition: { duration: 0.5 } }}>
-                <SplashScreen onAnimationComplete={() => setShowSplash(false)} />
-            </motion.div>
-        ) : (
-             <motion.div 
-                key="login"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { duration: 0.5, delay: 0.5 } }}
-                className="flex flex-col items-center justify-center min-h-screen bg-background"
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
+        <motion.div
+            animate={showSplash ? "splash" : "login"}
+            variants={logoContainerVariants}
+            className="flex items-center gap-2"
+        >
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-10 w-10 text-primary"
             >
-                <div className="flex items-center gap-2 mb-8 -mt-32">
-                     <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-10 w-10 text-primary"
-                    >
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                    </svg>
-                    <h1 className="text-3xl font-bold">EduQuest</h1>
-                </div>
-                <Card className="w-full max-w-md mx-4">
-                    <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Welcome Back!</CardTitle>
-                    <CardDescription>Enter your credentials to access your account.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                        id="email"
-                        type="email"
-                        placeholder="m@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoading}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                        />
-                    </div>
-                    <Button onClick={handleLogin} disabled={isLoading} className="w-full">
-                        {isLoading ? 'Logging in...' : 'Login'}
-                    </Button>
-                    <div className="text-center text-sm text-muted-foreground">
-                        Don't have an account?{' '}
-                        <Link href="/signup" className="text-primary hover:underline">
-                        Sign up
-                        </Link>
-                    </div>
-                    </CardContent>
-                </Card>
-            </motion.div>
-        )}
-    </AnimatePresence>
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+            </svg>
+            <h1 className="text-3xl font-bold">EduQuest</h1>
+        </motion.div>
+
+        <AnimatePresence>
+            {!showSplash && (
+                 <motion.div 
+                    key="login-form"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.3 } }}
+                    exit={{ opacity: 0 }}
+                    className="w-full max-w-md mx-4 absolute"
+                    style={{ top: '50%', transform: 'translateY(-25%)' }}
+                >
+                    <Card>
+                        <CardHeader className="text-center">
+                        <CardTitle className="text-2xl">Welcome Back!</CardTitle>
+                        <CardDescription>Enter your credentials to access your account.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={isLoading}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
+                            />
+                        </div>
+                        <Button onClick={handleLogin} disabled={isLoading} className="w-full">
+                            {isLoading ? 'Logging in...' : 'Login'}
+                        </Button>
+                        <div className="text-center text-sm text-muted-foreground">
+                            Don't have an account?{' '}
+                            <Link href="/signup" className="text-primary hover:underline">
+                            Sign up
+                            </Link>
+                        </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
   );
 }
