@@ -9,6 +9,7 @@ import { type ReactNode, useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 const studentNavLinks = [
@@ -156,7 +157,17 @@ export default function MainLayout({ children }: { children: ReactNode }) {
              )}
           </header>
           <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8">
-              {user ? children : null}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {user ? children : null}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
         <MobileNav navLinks={navLinks} user={user} />
