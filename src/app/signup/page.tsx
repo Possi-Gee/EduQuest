@@ -45,16 +45,13 @@ export default function SignupPage() {
         name: name,
         email: user.email,
         role: role,
+        isNewUser: true, // Mark as a new user for onboarding
       });
 
       toast({ title: 'Success', description: 'Account created successfully!' });
       
-      // Redirect based on role
-      if (role === 'teacher') {
-        router.push('/dashboard');
-      } else {
-        router.push('/');
-      }
+      // The auth listener will redirect to the introduction page
+      // No need to push router here.
 
     } catch (error: any) {
       console.error('Signup error:', error);

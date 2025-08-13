@@ -129,7 +129,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
 
     const navLinks = userRole === 'teacher' ? teacherNavLinks : studentNavLinks;
-    const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/introduction';
 
     if (loading) {
         return <div className="flex items-center justify-center min-h-screen">Loading...</div>;

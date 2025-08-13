@@ -13,18 +13,21 @@ const db = getFirestore(app);
 interface AuthContextType {
   user: User | null;
   userRole: 'student' | 'teacher' | null;
+  isNewUser: boolean | null;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userRole: null,
+  isNewUser: null,
   loading: true,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -32,17 +35,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in.
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setUserRole(userData.role);
+          setIsNewUser(userData.isNewUser === true);
         }
         setUser(user);
       } else {
-        // User is signed out.
         setUser(null);
         setUserRole(null);
+        setIsNewUser(null);
       }
       setLoading(false);
     });
@@ -54,16 +57,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (loading) return;
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const isIntroPage = pathname === '/introduction';
 
     if (!user && !isAuthPage) {
         router.push('/login');
     } else if (user && isAuthPage) {
         router.push('/');
+    } else if (user && isNewUser && !isIntroPage) {
+        router.push('/introduction');
+    } else if (user && !isNewUser && isIntroPage) {
+        // Prevent old users from accessing intro page
+        router.push(userRole === 'teacher' ? '/dashboard' : '/');
     }
-  }, [user, loading, pathname, router]);
+
+  }, [user, userRole, isNewUser, loading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading }}>
+    <AuthContext.Provider value={{ user, userRole, isNewUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

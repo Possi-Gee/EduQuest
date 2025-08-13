@@ -189,6 +189,11 @@ export const addQuizAttempt = async (userId: string, attempt: Omit<QuizAttempt, 
     }
 };
 
+export const updateUserOnboarding = async (userId: string): Promise<void> => {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, { isNewUser: false });
+};
+
 
 // --- Announcements ---
 export const getAnnouncements = async (): Promise<Announcement[]> => {
