@@ -179,7 +179,7 @@ export default function LoginPage() {
         <AnimatePresence>
           {!showSplash && (
             <motion.div
-              className="w-full h-full flex flex-col items-center pt-8"
+              className="w-full h-full flex flex-col items-center"
               initial={{opacity: 0}}
               animate={{opacity: 1, transition: {duration: 0.5, delay: 0.3}}}
             >
@@ -208,7 +208,7 @@ export default function LoginPage() {
               </motion.h1>
               
               <motion.div
-                 className="w-full max-w-md mx-4 mt-8"
+                 className="w-full max-w-md mx-4 mt-4"
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.5 } }}
               >
@@ -257,4 +257,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
