@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function IntroductionPage() {
-    const { user, userRole } = useAuth();
+    const { user, userRole, recheckUser } = useAuth();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -19,19 +19,19 @@ export default function IntroductionPage() {
         setIsLoading(true);
         try {
             await updateUserOnboarding(user.uid);
+            // Re-check the user status to update isNewUser flag in the hook
+            await recheckUser();
+            // The redirection will now be handled automatically by the useAuth hook's useEffect
+        } catch (error) {
+            console.error("Failed to update user onboarding status", error);
+            // Fallback navigation in case recheck fails for some reason
             if (userRole === 'teacher') {
                 router.push('/dashboard');
             } else {
                 router.push('/');
             }
-        } catch (error) {
-            console.error("Failed to update user onboarding status", error);
-            // Still try to navigate
-             if (userRole === 'teacher') {
-                router.push('/dashboard');
-            } else {
-                router.push('/');
-            }
+        } finally {
+            setIsLoading(false);
         }
     };
 

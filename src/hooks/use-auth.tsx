@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
@@ -15,6 +15,7 @@ interface AuthContextType {
   userRole: 'student' | 'teacher' | null;
   isNewUser: boolean | null;
   loading: boolean;
+  recheckUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   userRole: null,
   isNewUser: null,
   loading: true,
+  recheckUser: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -31,6 +33,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const recheckUser = useCallback(async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserRole(userData.role);
+          setIsNewUser(userData.isNewUser === true);
+        }
+        setUser(currentUser);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -73,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user, userRole, isNewUser, loading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, userRole, isNewUser, loading }}>
+    <AuthContext.Provider value={{ user, userRole, isNewUser, loading, recheckUser }}>
       {children}
     </AuthContext.Provider>
   );
