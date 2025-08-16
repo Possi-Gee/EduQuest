@@ -25,11 +25,8 @@ export default function IntroductionPage() {
         } catch (error) {
             console.error("Failed to update user onboarding status", error);
             // Fallback navigation in case recheck fails for some reason
-            if (userRole === 'teacher') {
-                router.push('/dashboard');
-            } else {
-                router.push('/');
-            }
+            const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
+            router.push(targetPath);
         } finally {
             setIsLoading(false);
         }

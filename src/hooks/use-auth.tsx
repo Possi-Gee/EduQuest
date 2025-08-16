@@ -77,7 +77,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user && !isAuthPage) {
         router.push('/login');
     } else if (user && isAuthPage) {
-        router.push('/');
+        // Check role on initial login/signup redirect
+        const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
+        router.push(targetPath);
     } else if (user && isNewUser && !isIntroPage) {
         router.push('/introduction');
     } else if (user && !isNewUser && isIntroPage) {
