@@ -13,7 +13,9 @@ import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { validateAndClaimTeacherId } from '@/lib/data';
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -25,17 +27,38 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'student' | 'teacher'>('student');
+  const [teacherId, setTeacherId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async () => {
-    if (!name) {
-      toast({ title: 'Name is required.', variant: 'destructive' });
+    if (!name || !email || !password) {
+      toast({ title: 'All fields are required.', variant: 'destructive' });
       return;
     }
+    if (role === 'teacher' && !teacherId) {
+        toast({ title: 'Teacher ID is required for teacher accounts.', variant: 'destructive' });
+        return;
+    }
+
     setIsLoading(true);
+
     try {
+      if (role === 'teacher') {
+          const { isValid, message } = await validateAndClaimTeacherId(teacherId, 'temp-id'); // Use a temporary ID for validation
+          if (!isValid) {
+              toast({ title: 'Signup Failed', description: message, variant: 'destructive' });
+              setIsLoading(false);
+              return;
+          }
+      }
+      
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      
+      // If validation was successful, now claim the ID with the actual user UID
+      if (role === 'teacher') {
+          await validateAndClaimTeacherId(teacherId, user.uid);
+      }
       
       // Update profile
       await updateProfile(user, { displayName: name });
@@ -52,13 +75,20 @@ export default function SignupPage() {
       toast({ title: 'Success', description: 'Account created successfully!' });
       
       // The auth listener will redirect to the introduction page
-      // No need to push router here.
 
     } catch (error: any) {
       console.error('Signup error:', error);
+      let errorMessage = 'An unexpected error occurred.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email address is already in use.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'The password must be at least 6 characters long.';
+      } else if (error.code) {
+        errorMessage = error.message;
+      }
       toast({
         title: 'Signup Failed',
-        description: error.message || 'An unexpected error occurred.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -79,6 +109,46 @@ export default function SignupPage() {
           <CardDescription>Join EduQuest and start your learning adventure.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>I am a...</Label>
+            <RadioGroup
+              value={role}
+              onValueChange={(value: 'student' | 'teacher') => setRole(value)}
+              className="flex gap-4"
+              disabled={isLoading}
+            >
+              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
+                <RadioGroupItem value="student" id="student" />
+                Student
+              </Label>
+              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
+                <RadioGroupItem value="teacher" id="teacher" />
+                Teacher
+              </Label>
+            </RadioGroup>
+          </div>
+
+          <AnimatePresence>
+            {role === 'teacher' && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2 overflow-hidden"
+                >
+                    <Label htmlFor="teacherId">Teacher ID</Label>
+                    <Input
+                        id="teacherId"
+                        placeholder="Enter your teacher ID"
+                        value={teacherId}
+                        onChange={(e) => setTeacherId(e.target.value)}
+                        disabled={isLoading}
+                    />
+                </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -110,24 +180,7 @@ export default function SignupPage() {
               disabled={isLoading}
             />
           </div>
-          <div className="space-y-2">
-            <Label>I am a...</Label>
-            <RadioGroup
-              value={role}
-              onValueChange={(value: 'student' | 'teacher') => setRole(value)}
-              className="flex gap-4"
-              disabled={isLoading}
-            >
-              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
-                <RadioGroupItem value="student" id="student" />
-                Student
-              </Label>
-              <Label className="flex items-center gap-2 p-4 border rounded-md has-[:checked]:bg-primary/10 has-[:checked]:border-primary cursor-pointer transition-colors flex-1">
-                <RadioGroupItem value="teacher" id="teacher" />
-                Teacher
-              </Label>
-            </RadioGroup>
-          </div>
+          
           <Button onClick={handleSignup} disabled={isLoading} className="w-full">
             {isLoading ? 'Creating Account...' : 'Sign Up'}
           </Button>

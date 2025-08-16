@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Note, Quiz, UserData, Student, Announcement, QuizAttempt } from './types';
 import { getAuth } from 'firebase/auth';
@@ -272,4 +272,46 @@ export const deleteSubject = async (subject: string): Promise<void> => {
 
     // Commit the batch
     await batch.commit();
+};
+
+// --- Teacher ID Validation ---
+export const validateAndClaimTeacherId = async (teacherId: string, newUserId: string): Promise<{isValid: boolean, message: string}> => {
+    if (!teacherId) {
+        return { isValid: false, message: 'Teacher ID cannot be empty.' };
+    }
+
+    const teacherIdRef = doc(db, 'teacher_ids', teacherId);
+
+    try {
+        const result = await runTransaction(db, async (transaction) => {
+            const teacherIdDoc = await transaction.get(teacherIdRef);
+
+            if (!teacherIdDoc.exists()) {
+                return { isValid: false, message: 'Invalid Teacher ID.' };
+            }
+
+            const data = teacherIdDoc.data();
+            const isClaimed = data.isClaimed || false;
+            
+            // This is a pre-check before user creation
+            if (newUserId === 'temp-id') {
+                 if (isClaimed) {
+                    return { isValid: false, message: 'This Teacher ID has already been used.'};
+                }
+                return { isValid: true, message: 'Valid ID.'};
+            }
+
+            // This is the actual claiming part after user is created
+            if (isClaimed) {
+                 return { isValid: false, message: 'This Teacher ID has already been used.' };
+            }
+
+            transaction.update(teacherIdRef, { isClaimed: true, claimedBy: newUserId });
+            return { isValid: true, message: 'Successfully claimed.'};
+        });
+        return result;
+    } catch (error) {
+        console.error("Transaction failed: ", error);
+        return { isValid: false, message: 'An error occurred during verification. Please try again.' };
+    }
 };
