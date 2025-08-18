@@ -146,7 +146,10 @@ export default function QuizPage() {
 
   const handleDownload = () => {
     if (certificateRef.current) {
-      html2canvas(certificateRef.current, { scale: 2 }).then((canvas) => {
+      html2canvas(certificateRef.current, { 
+        scale: 2,
+        backgroundColor: '#0A102E' 
+      }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.href = imgData;
