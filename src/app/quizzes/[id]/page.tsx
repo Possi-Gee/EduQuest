@@ -13,7 +13,6 @@ import { Certificate } from '@/components/certificate';
 import Confetti from '@/components/confetti';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { cn } from '@/lib/utils';
 import type { Quiz, UserData } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -149,9 +148,12 @@ export default function QuizPage() {
     if (certificateRef.current) {
       html2canvas(certificateRef.current, { scale: 2 }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('landscape', 'px', [canvas.width, canvas.height]);
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('certificate.pdf');
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'certificate.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       });
     }
   };
