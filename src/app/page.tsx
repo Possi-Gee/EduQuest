@@ -14,20 +14,22 @@ import type { Announcement } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const { user, userRole } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, userRole, loading: authLoading } = useAuth();
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
   const [hasUnread, setHasUnread] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const router = useRouter();
   
   useEffect(() => {
+    if (authLoading) return;
+
     if (userRole === 'teacher') {
         router.replace('/dashboard');
         return;
     }
     
     const fetchAnnouncements = async () => {
-        setLoading(true);
+        setAnnouncementsLoading(true);
         const allAnnouncements = await getAnnouncements();
         setAnnouncements(allAnnouncements);
         
@@ -36,18 +38,25 @@ export default function Home() {
         const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
         const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
         setHasUnread(unreadCount > 0);
-        setLoading(false);
+        setAnnouncementsLoading(false);
     }
 
     if (userRole === 'student') {
       fetchAnnouncements();
+    } else {
+      // If role is not student (or not determined yet), don't show announcements
+      setAnnouncementsLoading(false);
     }
-  }, [userRole, router]);
+  }, [userRole, authLoading, router]);
 
   const handleBellClick = () => {
     markAnnouncementsAsRead();
     setHasUnread(false);
   };
+  
+  if (authLoading) {
+     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  }
   
   if (userRole === 'teacher') {
       return <div className="flex items-center justify-center min-h-screen">Redirecting to dashboard...</div>;
@@ -96,7 +105,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="grid gap-2">
-                {loading ? <Loader2 className="mx-auto my-4 h-6 w-6 animate-spin" /> : announcements.length > 0 ? (
+                {announcementsLoading ? <Loader2 className="mx-auto my-4 h-6 w-6 animate-spin" /> : announcements.length > 0 ? (
                   announcements.slice(0, 3).map((announcement) => (
                      <div key={announcement.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
                       <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
@@ -122,7 +131,7 @@ export default function Home() {
         </Popover>
       </div>
       
-      {loading ? <AnnouncementSkeletons /> : announcements.length > 0 && (
+      {announcementsLoading ? <AnnouncementSkeletons /> : announcements.length > 0 && (
         <Card className="bg-primary/10 border-primary/20">
           <CardHeader>
             <div className="flex items-center gap-4">

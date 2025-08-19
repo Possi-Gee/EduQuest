@@ -12,7 +12,7 @@ const db = getFirestore(app);
 
 interface AuthContextType {
   user: User | null;
-  userRole: 'student' | 'teacher' | null;
+  userRole: 'student' | 'teacher' | 'admin' | 'superadmin' | null;
   isNewUser: boolean | null;
   loading: boolean;
   recheckUser: () => Promise<void>;
@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
+  const [userRole, setUserRole] = useState<'student' | 'teacher' | 'admin' | 'superadmin' | null>(null);
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -77,14 +77,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user && !isAuthPage) {
         router.push('/login');
     } else if (user && isAuthPage) {
-        // Check role on initial login/signup redirect
         const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
         router.push(targetPath);
     } else if (user && isNewUser && !isIntroPage) {
         router.push('/introduction');
     } else if (user && !isNewUser && isIntroPage) {
         // Prevent old users from accessing intro page
-        router.push(userRole === 'teacher' ? '/dashboard' : '/');
+        const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
+        router.push(targetPath);
     }
 
   }, [user, userRole, isNewUser, loading, pathname, router]);
