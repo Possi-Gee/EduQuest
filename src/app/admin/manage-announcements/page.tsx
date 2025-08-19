@@ -74,7 +74,7 @@ export default function ManageAnnouncementsPage() {
         await addAnnouncement({
           title,
           content,
-          date: new Date().toISOString().split('T')[0],
+          date: new Date().toISOString(),
         });
         
         await fetchAnnouncements();
@@ -182,7 +182,7 @@ export default function ManageAnnouncementsPage() {
                       {announcement.content}
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Posted on {new Date(announcement.date).toLocaleDateString()}
+                      Posted on {new Date(announcement.date).toLocaleString()}
                     </p>
                   </div>
                   <AlertDialog>

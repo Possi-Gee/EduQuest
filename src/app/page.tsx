@@ -150,7 +150,7 @@ export default function Home() {
               <div>
                 <CardTitle className="text-primary">{announcements[0].title}</CardTitle>
                 <CardDescription className="text-primary/80">
-                  Posted on {new Date(announcements[0].date).toLocaleDateString()}
+                  Posted on {new Date(announcements[0].date).toLocaleString()}
                 </CardDescription>
               </div>
             </div>
