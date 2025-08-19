@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import type { Note } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export default function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -59,7 +60,7 @@ export default function NotesPage() {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className={`grid w-full grid-cols-${subjects.length > 0 ? subjects.length : 1}`}>
+            <TabsList className={cn("w-full h-auto justify-start", subjects.length > 3 && "overflow-x-auto")}>
             {subjects.map((category) => (
                 <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
             ))}
@@ -76,7 +77,7 @@ export default function NotesPage() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-muted-foreground line-clamp-3">
-                                {note.content}
+                                {note.content.replace(/##/g, '')}
                                 </p>
                             </CardContent>
                             </Card>
