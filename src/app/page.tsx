@@ -21,33 +21,38 @@ export default function Home() {
   const router = useRouter();
   
   useEffect(() => {
-    // Wait until auth is resolved
-    if (authLoading) return;
+    if (authLoading) {
+      return; // Wait until authentication is resolved
+    }
 
     if (userRole === 'teacher') {
-        router.replace('/dashboard');
-        return;
-    }
-    
-    const fetchAnnouncements = async () => {
-        setAnnouncementsLoading(true);
-        const allAnnouncements = await getAnnouncements();
-        setAnnouncements(allAnnouncements);
-        
-        // In a real app, you'd fetch read status from a user-specific store.
-        // For this demo, we'll use localStorage.
-        const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
-        const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
-        setHasUnread(unreadCount > 0);
-        setAnnouncementsLoading(false);
+      router.replace('/dashboard');
+      return; // Redirect teachers away from the student page
     }
 
-    // Only fetch if we have confirmed the user is a student
+    // Only fetch announcements if we have a confirmed student user
     if (userRole === 'student') {
+      const fetchAnnouncements = async () => {
+        setAnnouncementsLoading(true);
+        try {
+          const allAnnouncements = await getAnnouncements();
+          setAnnouncements(allAnnouncements);
+
+          // Use localStorage to track read status for this demo
+          const readIds = JSON.parse(localStorage.getItem('readAnnouncementIds') || '[]');
+          const unreadCount = allAnnouncements.filter(a => !readIds.includes(a.id)).length;
+          setHasUnread(unreadCount > 0);
+        } catch (error) {
+          console.error("Failed to fetch announcements:", error);
+          // Handle error appropriately, maybe show a toast
+        } finally {
+          setAnnouncementsLoading(false);
+        }
+      };
+      
       fetchAnnouncements();
     } else {
-      // If role is not student (or not determined yet), don't show announcements
-      // and stop the loading indicator.
+      // If role is not student (or not determined yet), stop loading.
       setAnnouncementsLoading(false);
     }
   }, [userRole, authLoading, router]);
