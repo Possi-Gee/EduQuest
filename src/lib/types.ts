@@ -50,3 +50,10 @@ export interface Announcement {
   content: string;
   date: string;
 }
+
+export interface Teacher {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+}

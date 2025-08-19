@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Note, Quiz, UserData, Student, Announcement, QuizAttempt } from './types';
+import type { Note, Quiz, UserData, Student, Announcement, QuizAttempt, Teacher } from './types';
 import { getAuth } from 'firebase/auth';
 
 // --- Notes ---
@@ -314,4 +314,23 @@ export const validateAndClaimTeacherId = async (teacherId: string, newUserId: st
         console.error("Transaction failed: ", error);
         return { isValid: false, message: 'An error occurred during verification. Please try again.' };
     }
+};
+
+// --- Teachers ---
+export const getTeachers = async (): Promise<Teacher[]> => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("role", "==", "teacher"));
+    const querySnapshot = await getDocs(q);
+
+    const teacherList = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            name: data.name,
+            email: data.email,
+            avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
+        } as Teacher;
+    });
+
+    return teacherList;
 };
