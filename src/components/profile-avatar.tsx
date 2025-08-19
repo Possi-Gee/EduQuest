@@ -15,18 +15,26 @@ interface ProfileAvatarProps {
 }
 
 export function ProfileAvatar({ src, alt, fallback, className, imageClassName }: ProfileAvatarProps) {
+  const avatar = (
+    <Avatar className={cn(!src && "pointer-events-none", className)}>
+        <AvatarImage src={src} alt={alt} />
+        <AvatarFallback>{fallback}</AvatarFallback>
+    </Avatar>
+  );
+  
+  if (!src) {
+    return avatar;
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Avatar className={cn("cursor-pointer", className)}>
-          <AvatarImage src={src} alt={alt} />
-          <AvatarFallback>{fallback}</AvatarFallback>
-        </Avatar>
+        {avatar}
       </DialogTrigger>
       <DialogContent className="p-0 border-0 bg-transparent w-auto flex items-center justify-center">
         <DialogTitle className="sr-only">{alt || 'Profile Image'}</DialogTitle>
         <Image
-          src={src || ''}
+          src={src}
           alt={alt || 'Profile Image'}
           width={512}
           height={512}
