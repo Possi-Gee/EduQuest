@@ -38,6 +38,7 @@ import { PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Announcement } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function ManageAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -182,7 +183,7 @@ export default function ManageAnnouncementsPage() {
                       {announcement.content}
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Posted on {new Date(announcement.date).toLocaleString()}
+                      Posted {formatDistanceToNow(new Date(announcement.date), { addSuffix: true })}
                     </p>
                   </div>
                   <AlertDialog>

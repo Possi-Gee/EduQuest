@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import type { Announcement } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function Home() {
   const { user, userRole, loading: authLoading } = useAuth();
@@ -128,7 +129,7 @@ export default function Home() {
                           {announcement.content}
                         </p>
                          <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(announcement.date).toLocaleString()}
+                          {formatDistanceToNow(new Date(announcement.date), { addSuffix: true })}
                         </p>
                       </div>
                     </div>
@@ -150,7 +151,7 @@ export default function Home() {
               <div>
                 <CardTitle className="text-primary">{announcements[0].title}</CardTitle>
                 <CardDescription className="text-primary/80">
-                  Posted on {new Date(announcements[0].date).toLocaleString()}
+                  Posted {formatDistanceToNow(new Date(announcements[0].date), { addSuffix: true })}
                 </CardDescription>
               </div>
             </div>
