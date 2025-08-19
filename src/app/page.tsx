@@ -51,11 +51,14 @@ export default function Home() {
       };
       
       fetchAnnouncements();
-    } else {
-      // If role is not student (or not determined yet), stop loading.
-      setAnnouncementsLoading(false);
+    } else if (userRole === null) {
+      // If role is not determined yet, it might be a student, so keep loading state.
+      // But if there's no user at all, stop loading.
+      if (!user) {
+        setAnnouncementsLoading(false);
+      }
     }
-  }, [userRole, authLoading, router]);
+  }, [userRole, authLoading, router, user]);
 
   const handleBellClick = () => {
     markAnnouncementsAsRead();
@@ -75,7 +78,7 @@ export default function Home() {
       <Card className="bg-primary/10 border-primary/20">
         <CardHeader>
           <div className="flex items-center gap-4">
-            <Skeleton className="h-6 w-6 rounded-full" />
+            <Bell className="h-6 w-6 text-primary" />
             <div>
               <Skeleton className="h-6 w-48" />
               <Skeleton className="h-4 w-32 mt-2" />
@@ -208,5 +211,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
