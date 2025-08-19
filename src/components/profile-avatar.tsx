@@ -2,7 +2,7 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -24,6 +24,7 @@ export function ProfileAvatar({ src, alt, fallback, className, imageClassName }:
         </Avatar>
       </DialogTrigger>
       <DialogContent className="p-0 border-0 bg-transparent w-auto flex items-center justify-center">
+        <DialogTitle className="sr-only">{alt || 'Profile Image'}</DialogTitle>
         <Image
           src={src || ''}
           alt={alt || 'Profile Image'}
