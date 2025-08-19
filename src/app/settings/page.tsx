@@ -150,7 +150,7 @@ export default function MorePage() {
                 </div>
             </DialogContent>
         </GridItem>
-        {userRole === 'teacher' && (
+        {(userRole === 'teacher' || userRole === 'admin') && (
              <GridItem href="/manage-announcements" icon={MessageSquare} label="Announcements" />
         )}
         <GridItem action={handleLogout} icon={LogOut} label="Logout" />
@@ -158,5 +158,3 @@ export default function MorePage() {
     </div>
   );
 }
-
-    
