@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, MoreHorizontal, LayoutGrid, LogIn, UserPlus, Shield, School } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, MoreHorizontal, LayoutGrid, LogIn, UserPlus, Shield, School, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode, useState, useEffect } from 'react';
 import { Button } from './ui/button';
@@ -33,6 +33,7 @@ const adminNavLinks = [
   { href: '/admin', icon: Home, label: 'Home' },
   { href: '/admin/manage-teachers', icon: Users, label: 'Manage Teachers' },
   { href: '/admin/manage-students', icon: Users, label: 'Manage Students' },
+  { href: '/admin/manage-announcements', icon: MessageSquare, label: 'Announcements' },
   { href: '/admin/settings', icon: Settings, label: 'School Settings' },
   { href: '/settings', icon: LayoutGrid, label: 'More' },
 ];
