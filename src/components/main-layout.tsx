@@ -105,7 +105,7 @@ function DesktopNav({ navLinks, user }: { navLinks: {href: string, icon: React.E
         {user && (
             <Link href="/profile">
                 <ProfileAvatar 
-                  src={user.photoURL}
+                  src={user.photoURL || undefined}
                   alt={user.displayName}
                   fallback={user.displayName?.charAt(0)}
                   className="h-10 w-10"
@@ -182,7 +182,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
              {user && (
                 <Link href="/profile">
                     <ProfileAvatar 
-                        src={user.photoURL}
+                        src={user.photoURL || undefined}
                         alt={user.displayName}
                         fallback={user.displayName?.charAt(0)}
                         className="h-8 w-8"
