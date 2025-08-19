@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, MoreHorizontal, LayoutGrid, LogIn, UserPlus } from 'lucide-react';
+import { Home, BookOpen, ClipboardCheck, User, Settings, Info, LayoutDashboard, Users, FilePlus, FilePenLine, MoreHorizontal, LayoutGrid, LogIn, UserPlus, Shield, School } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type ReactNode, useState, useEffect } from 'react';
 import { Button } from './ui/button';
@@ -26,7 +26,22 @@ const teacherNavLinks = [
   { href: '/manage-notes', icon: FilePenLine, label: 'Manage Notes' },
   { href: '/manage-students', icon: Users, label: 'Manage Students' },
   { href: '/settings', icon: LayoutGrid, label: 'More' },
-]
+];
+
+const adminNavLinks = [
+  { href: '/admin', icon: Home, label: 'Home' },
+  { href: '/admin/manage-teachers', icon: Users, label: 'Manage Teachers' },
+  { href: '/admin/manage-students', icon: Users, label: 'Manage Students' },
+  { href: '/admin/settings', icon: Settings, label: 'School Settings' },
+];
+
+const superAdminNavLinks = [
+  { href: '/superadmin', icon: Home, label: 'Home' },
+  { href: '/superadmin/manage-admins', icon: Shield, label: 'Manage Admins' },
+  { href: '/superadmin/manage-schools', icon: School, label: 'Manage Schools' },
+  { href: '/superadmin/settings', icon: Settings, label: 'Platform Settings' },
+];
+
 
 function Logo() {
   return (
@@ -50,7 +65,7 @@ function Logo() {
   );
 }
 
-function NavLinks({ navLinks }: { navLinks: typeof studentNavLinks }) {
+function NavLinks({ navLinks }: { navLinks: {href: string, icon: React.ElementType, label: string}[] }) {
     const pathname = usePathname();
     return (
         <>
@@ -71,7 +86,7 @@ function NavLinks({ navLinks }: { navLinks: typeof studentNavLinks }) {
     );
 }
 
-function DesktopNav({ navLinks, user }: { navLinks: typeof studentNavLinks; user: any }) {
+function DesktopNav({ navLinks, user }: { navLinks: {href: string, icon: React.ElementType, label: string}[]; user: any }) {
   return (
     <aside className="hidden md:flex flex-col w-64 border-r bg-card">
        <div className="p-4 border-b h-16 flex items-center">
@@ -99,7 +114,7 @@ function DesktopNav({ navLinks, user }: { navLinks: typeof studentNavLinks; user
   );
 }
 
-function MobileNav({ navLinks, user }: { navLinks: typeof studentNavLinks, user: any }) {
+function MobileNav({ navLinks, user }: { navLinks: {href: string, icon: React.ElementType, label: string}[], user: any }) {
   const pathname = usePathname();
   if (!user) return null;
 
@@ -129,7 +144,21 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const navLinks = userRole === 'teacher' ? teacherNavLinks : studentNavLinks;
+    const getNavLinks = (role: string | null) => {
+        switch(role) {
+            case 'superadmin':
+                return superAdminNavLinks;
+            case 'admin':
+                return adminNavLinks;
+            case 'teacher':
+                return teacherNavLinks;
+            case 'student':
+            default:
+                return studentNavLinks;
+        }
+    }
+
+    const navLinks = getNavLinks(userRole);
     const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/introduction';
 
     if (loading) {
@@ -174,5 +203,3 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       </div>
   );
 }
-
-    

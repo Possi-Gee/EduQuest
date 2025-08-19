@@ -68,6 +68,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
   
+  const getRedirectPath = (role: string | null) => {
+    switch (role) {
+        case 'superadmin':
+            return '/superadmin';
+        case 'admin':
+            return '/admin';
+        case 'teacher':
+            return '/dashboard';
+        case 'student':
+        default:
+            return '/';
+    }
+  }
+
   useEffect(() => {
     if (loading) return;
 
@@ -77,13 +91,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user && !isAuthPage) {
         router.push('/login');
     } else if (user && isAuthPage) {
-        const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
+        const targetPath = getRedirectPath(userRole);
         router.push(targetPath);
     } else if (user && isNewUser && !isIntroPage) {
         router.push('/introduction');
     } else if (user && !isNewUser && isIntroPage) {
         // Prevent old users from accessing intro page
-        const targetPath = userRole === 'teacher' ? '/dashboard' : '/';
+        const targetPath = getRedirectPath(userRole);
         router.push(targetPath);
     }
 
