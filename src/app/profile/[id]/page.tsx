@@ -11,33 +11,33 @@ import { getUserById } from '@/lib/data';
 import type { Student } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function StudentProfilePage() {
+export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const [student, setStudent] = useState<Student | null>(null);
+  const [user, setUser] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    const fetchStudent = async () => {
+    const fetchUser = async () => {
       setLoading(true);
       try {
-        const fetchedStudent = await getUserById(id);
-        if (fetchedStudent) {
-          setStudent(fetchedStudent);
+        const fetchedUser = await getUserById(id);
+        if (fetchedUser) {
+          setUser(fetchedUser);
         } else {
           notFound();
         }
       } catch (error) {
-        console.error("Failed to fetch student data:", error);
+        console.error("Failed to fetch user data:", error);
         notFound();
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudent();
+    fetchUser();
   }, [id]);
 
   if (loading) {
@@ -58,7 +58,7 @@ export default function StudentProfilePage() {
     )
   }
 
-  if (!student) {
+  if (!user) {
     return null; // Should be handled by notFound
   }
 
@@ -69,31 +69,37 @@ export default function StudentProfilePage() {
                 <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-                <h1 className="text-3xl font-bold">{student.name}'s Profile</h1>
-                <p className="text-muted-foreground">Viewing student details.</p>
+                <h1 className="text-3xl font-bold">{user.name}'s Profile</h1>
+                <p className="text-muted-foreground">Viewing user details.</p>
             </div>
         </div>
       
         <Card className="max-w-md mx-auto">
             <CardHeader className="items-center text-center">
                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={student.avatarUrl} alt={student.name} />
-                    <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <CardTitle className="text-2xl pt-4">{student.name}</CardTitle>
-                <CardDescription>{student.email}</CardDescription>
+                <CardTitle className="text-2xl pt-4">{user.name}</CardTitle>
+                <CardDescription>{user.email}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="flex justify-around text-center">
-                    <div>
-                        <p className="text-2xl font-bold">{student.quizzesTaken}</p>
-                        <p className="text-sm text-muted-foreground">Quizzes Taken</p>
-                    </div>
-                     <div>
-                        <p className="text-2xl font-bold">{student.averageScore}%</p>
-                        <p className="text-sm text-muted-foreground">Average Score</p>
-                    </div>
-                </div>
+                {user.role === 'student' ? (
+                  <div className="flex justify-around text-center">
+                      <div>
+                          <p className="text-2xl font-bold">{user.quizzesTaken}</p>
+                          <p className="text-sm text-muted-foreground">Quizzes Taken</p>
+                      </div>
+                      <div>
+                          <p className="text-2xl font-bold">{user.averageScore}%</p>
+                          <p className="text-sm text-muted-foreground">Average Score</p>
+                      </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-4">
+                    <p className="font-medium capitalize">{user.role}</p>
+                  </div>
+                )}
             </CardContent>
         </Card>
     </div>
