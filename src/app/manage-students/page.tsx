@@ -16,11 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import type { Student } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProfileAvatar } from '@/components/profile-avatar';
 
 export default function ManageStudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -101,10 +101,12 @@ export default function ManageStudentsPage() {
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={student.avatarUrl} alt={student.name} data-ai-hint="person face" />
-                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatar 
+                           src={student.avatarUrl} 
+                           alt={student.name} 
+                           fallback={student.name.charAt(0)}
+                           className="h-9 w-9"
+                         />
                         <span>{student.name}</span>
                       </div>
                     </TableCell>

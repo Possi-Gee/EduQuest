@@ -1,7 +1,6 @@
 
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -10,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { getUserById } from '@/lib/data';
 import type { Student } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProfileAvatar } from '@/components/profile-avatar';
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -76,10 +76,12 @@ export default function UserProfilePage() {
       
         <Card className="max-w-md mx-auto">
             <CardHeader className="items-center text-center">
-                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                 <ProfileAvatar 
+                    src={user.avatarUrl} 
+                    alt={user.name} 
+                    fallback={user.name.charAt(0)}
+                    className="h-24 w-24"
+                 />
                 <CardTitle className="text-2xl pt-4">{user.name}</CardTitle>
                 <CardDescription>{user.email}</CardDescription>
             </CardHeader>

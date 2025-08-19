@@ -7,6 +7,7 @@ import { Github, Linkedin, Twitter, ArrowLeft, Facebook, Instagram } from 'lucid
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { ProfileAvatar } from '@/components/profile-avatar';
 
 export default function AboutPage() {
   const router = useRouter();
@@ -25,10 +26,12 @@ export default function AboutPage() {
           <div className="bg-muted h-32" />
         </CardHeader>
         <CardContent className="p-6 text-center -mt-16">
-          <Avatar className="h-24 w-24 mx-auto border-4 border-background">
-            <AvatarImage src="https://poss-gee.github.io/website/webimage5-removebg.png" alt="Ofori Michael" data-ai-hint="person face" />
-            <AvatarFallback>OM</AvatarFallback>
-          </Avatar>
+          <ProfileAvatar 
+            src="https://poss-gee.github.io/website/webimage5-removebg.png" 
+            alt="Ofori Michael" 
+            fallback="OM"
+            className="h-24 w-24 mx-auto border-4 border-background"
+          />
           <CardTitle className="mt-4">Ofori Michael</CardTitle>
           <p className="text-muted-foreground mt-1">Front-end Developer & Tech Enthusiast</p>
           <div className="mt-4 max-w-md mx-auto text-foreground/90 space-y-4 text-left">

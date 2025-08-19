@@ -1,7 +1,6 @@
 
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, KeyRound, Upload, Loader2 } from 'lucide-react';
@@ -15,6 +14,7 @@ import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthP
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, updateDoc, getFirestore } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
+import { ProfileAvatar } from '@/components/profile-avatar';
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -138,10 +138,12 @@ export default function ProfilePage() {
       <div className="grid gap-8 md:grid-cols-3">
         <Card className="md:col-span-1">
             <CardHeader className="items-center text-center">
-                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarUrl} alt={name} data-ai-hint="profile picture" />
-                    <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                 <ProfileAvatar 
+                   src={avatarUrl} 
+                   alt={name} 
+                   fallback={name.charAt(0)}
+                   className="h-24 w-24"
+                 />
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                 <CardTitle className="text-2xl pt-4">{name}</CardTitle>
                 <CardDescription>{user.email}</CardDescription>

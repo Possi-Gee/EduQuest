@@ -10,6 +10,7 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ProfileAvatar } from './profile-avatar';
 
 
 const studentNavLinks = [
@@ -103,10 +104,12 @@ function DesktopNav({ navLinks, user }: { navLinks: {href: string, icon: React.E
        <div className="mt-auto p-4">
         {user && (
             <Link href="/profile">
-                <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.photoURL} />
-                    <AvatarFallback className="bg-primary text-primary-foreground">{user.displayName?.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <ProfileAvatar 
+                  src={user.photoURL}
+                  alt={user.displayName}
+                  fallback={user.displayName?.charAt(0)}
+                  className="h-10 w-10"
+                />
             </Link>
         )}
        </div>
@@ -178,10 +181,12 @@ export default function MainLayout({ children }: { children: ReactNode }) {
             <Logo />
              {user && (
                 <Link href="/profile">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.photoURL} />
-                        <AvatarFallback className="bg-primary text-primary-foreground">{user.displayName?.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <ProfileAvatar 
+                        src={user.photoURL}
+                        alt={user.displayName}
+                        fallback={user.displayName?.charAt(0)}
+                        className="h-8 w-8"
+                     />
                 </Link>
              )}
           </header>

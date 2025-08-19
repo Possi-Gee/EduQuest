@@ -15,10 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import type { Teacher } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProfileAvatar } from '@/components/profile-avatar';
 
 export default function AdminManageTeachersPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -90,10 +90,12 @@ export default function AdminManageTeachersPage() {
                   <TableRow key={teacher.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={teacher.avatarUrl} alt={teacher.name} data-ai-hint="person face" />
-                          <AvatarFallback>{teacher.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatar 
+                           src={teacher.avatarUrl} 
+                           alt={teacher.name} 
+                           fallback={teacher.name.charAt(0)}
+                           className="h-9 w-9"
+                         />
                         <span>{teacher.name}</span>
                       </div>
                     </TableCell>
