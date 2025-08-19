@@ -21,6 +21,7 @@ export default function Home() {
   const router = useRouter();
   
   useEffect(() => {
+    // Wait until auth is resolved
     if (authLoading) return;
 
     if (userRole === 'teacher') {
@@ -41,10 +42,12 @@ export default function Home() {
         setAnnouncementsLoading(false);
     }
 
+    // Only fetch if we have confirmed the user is a student
     if (userRole === 'student') {
       fetchAnnouncements();
     } else {
       // If role is not student (or not determined yet), don't show announcements
+      // and stop the loading indicator.
       setAnnouncementsLoading(false);
     }
   }, [userRole, authLoading, router]);
