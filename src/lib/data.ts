@@ -22,8 +22,12 @@ export const getNoteById = async (id: string): Promise<Note | null> => {
     }
 };
 
-export const addNote = async (note: Omit<Note, 'id'>): Promise<string> => {
-    const docRef = await addDoc(collection(db, 'notes'), note);
+export const addNote = async (note: Omit<Note, 'id' | 'createdAt'>): Promise<string> => {
+    const newNote = {
+        ...note,
+        createdAt: new Date().toISOString(),
+    }
+    const docRef = await addDoc(collection(db, 'notes'), newNote);
     // Ensure the subject exists in the subjects collection
     const subjectsRef = collection(db, "subjects");
     const q = query(subjectsRef, where("name", "==", note.category));
@@ -129,6 +133,7 @@ export const getUserById = async (id: string): Promise<Student | null> => {
             avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
             quizzesTaken: quizHistory.length,
             averageScore: averageScore,
+            quizHistory: quizHistory,
         } as Student;
     } else {
         return null;
@@ -155,6 +160,7 @@ export const getStudents = async (): Promise<Student[]> => {
             avatarUrl: data.photoURL || `https://placehold.co/100x100.png?text=${data.name.charAt(0)}`,
             quizzesTaken: quizHistory.length,
             averageScore: averageScore,
+            quizHistory: quizHistory,
         } as Student;
     });
 

@@ -8,9 +8,10 @@ import { BarChart, Users, FileText, Activity } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis } from "recharts"
 import { useEffect, useState } from 'react';
-import { getStudents, getQuizzes } from '@/lib/data';
-import type { Student, Quiz } from '@/lib/types';
+import { getStudents, getQuizzes, getNotes } from '@/lib/data';
+import type { Student, Quiz, Note } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 
 const chartData = [
@@ -42,25 +43,36 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const [fetchedStudents, fetchedQuizzes] = await Promise.all([
+            const [fetchedStudents, fetchedQuizzes, fetchedNotes] = await Promise.all([
                 getStudents(),
-                getQuizzes()
+                getQuizzes(),
+                getNotes()
             ]);
             setStudents(fetchedStudents);
             setQuizzes(fetchedQuizzes);
             
-            // Generate more realistic recent activity
-            const activity = [];
-            if (fetchedStudents.length > 0 && fetchedQuizzes.length > 0) {
-                activity.push({ student: fetchedStudents[0].name, action: `completed the "${fetchedQuizzes[0].title}" quiz`, time: '10 min ago' });
-                if (fetchedStudents.length > 1) {
-                    activity.push({ student: fetchedStudents[1].name, action: 'submitted a new note on "Algebra"', time: '45 min ago' });
-                }
-                if (fetchedStudents.length > 2 && fetchedQuizzes.length > 1) {
-                     activity.push({ student: fetchedStudents[2].name, action: `achieved 90% on "${fetchedQuizzes[1].title}"`, time: '2 hours ago' });
-                }
-            }
-            setRecentActivity(activity);
+            // Generate realistic recent activity from quiz attempts and new notes
+            const quizActivities = fetchedStudents.flatMap(student => 
+                (student.quizHistory || []).map(attempt => ({
+                    student: student.name,
+                    studentId: student.id,
+                    action: `completed the "${attempt.quizTitle}" quiz`,
+                    date: new Date(attempt.date),
+                    type: 'quiz'
+                }))
+            );
+
+            const noteActivities = fetchedNotes.map(note => ({
+                action: `A new note "${note.title}" was added`,
+                date: new Date(note.createdAt),
+                type: 'note'
+            }));
+
+            const allActivities = [...quizActivities, ...noteActivities]
+                .sort((a, b) => b.date.getTime() - a.date.getTime())
+                .slice(0, 5); // Get the 5 most recent activities
+
+            setRecentActivity(allActivities);
             setLoading(false);
         }
         fetchData();
@@ -171,9 +183,10 @@ export default function DashboardPage() {
                             <Activity className="h-5 w-5 text-muted-foreground mt-1" />
                             <div>
                                 <p className="text-sm font-medium">
-                                    <span className="font-bold">{activity.student}</span> {activity.action}.
+                                    {activity.type === 'quiz' && <span className="font-bold">{activity.student}</span>}
+                                    {' '}{activity.action}
                                 </p>
-                                <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(activity.date, { addSuffix: true })}</p>
                             </div>
                         </div>
                     )) : (

@@ -4,6 +4,7 @@ export interface Note {
   title: string;
   category: string;
   content: string;
+  createdAt: string;
 }
 
 export interface QuizQuestion {
@@ -43,6 +44,7 @@ export interface Student {
   avatarUrl: string;
   quizzesTaken: number;
   averageScore: number;
+  quizHistory: QuizAttempt[];
 }
 
 export interface Announcement {
