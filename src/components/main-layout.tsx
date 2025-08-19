@@ -34,6 +34,7 @@ const adminNavLinks = [
   { href: '/admin/manage-teachers', icon: Users, label: 'Manage Teachers' },
   { href: '/admin/manage-students', icon: Users, label: 'Manage Students' },
   { href: '/admin/settings', icon: Settings, label: 'School Settings' },
+  { href: '/settings', icon: LayoutGrid, label: 'More' },
 ];
 
 const superAdminNavLinks = [
