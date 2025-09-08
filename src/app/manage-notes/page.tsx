@@ -56,13 +56,10 @@ export default function ManageNotesPage() {
     fetchData();
   }, [toast]);
   
-  const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredSubjects = subjects.filter(subject => subject.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const notesBySubject = subjects.reduce((acc, subject) => {
-    const subjectNotes = filteredNotes.filter(note => note.category === subject);
-    if(subjectNotes.length > 0) {
-        acc[subject] = subjectNotes;
-    }
+  const notesBySubject = filteredSubjects.reduce((acc, subject) => {
+    acc[subject] = notes.filter(note => note.category === subject);
     return acc;
   }, {} as Record<string, Note[]>);
   
@@ -173,7 +170,7 @@ export default function ManageNotesPage() {
         <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
-                placeholder="Search notes..."
+                placeholder="Search subjects..."
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -212,7 +209,7 @@ export default function ManageNotesPage() {
                             ))
                     ) : (
                         <p className="text-sm text-muted-foreground text-center p-4">
-                            {searchQuery ? `No notes found for "${searchQuery}" in this subject.` : 'No notes in this subject yet.'}
+                           No notes in this subject yet.
                         </p>
                     )}
                     <div className="flex justify-between items-center pt-2">
@@ -239,11 +236,10 @@ export default function ManageNotesPage() {
         )}
         {!loading && searchQuery && subjectsWithFilteredNotes.length === 0 && (
              <div className="text-center text-muted-foreground py-12 bg-card rounded-lg">
-              <p>No notes found for "{searchQuery}".</p>
+              <p>No subjects found for "{searchQuery}".</p>
             </div>
         )}
       </div>
     </div>
   );
 }
-
