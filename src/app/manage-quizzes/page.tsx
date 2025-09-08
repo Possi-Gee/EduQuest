@@ -6,7 +6,7 @@ import { getQuizzes, deleteQuiz } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,10 +19,12 @@ import { useRouter } from 'next/navigation';
 import type { Quiz } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
 export default function ManageQuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -37,6 +39,9 @@ export default function ManageQuizzesPage() {
     fetchQuizzes();
   }, []);
 
+  const filteredQuizzes = quizzes.filter(quiz => 
+    quiz.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -69,6 +74,15 @@ export default function ManageQuizzesPage() {
         <CardHeader>
           <CardTitle>Existing Quizzes</CardTitle>
           <CardDescription>View, edit, or delete your quizzes.</CardDescription>
+            <div className="relative pt-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                    placeholder="Search quizzes by title..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -94,8 +108,8 @@ export default function ManageQuizzesPage() {
                         <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                     </TableRow>
                 ))
-              ) : quizzes.length > 0 ? (
-                quizzes.map((quiz) => (
+              ) : filteredQuizzes.length > 0 ? (
+                filteredQuizzes.map((quiz) => (
                   <TableRow key={quiz.id}>
                     <TableCell className="font-medium">{quiz.title}</TableCell>
                      <TableCell className="hidden md:table-cell">
@@ -127,7 +141,7 @@ export default function ManageQuizzesPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center">
-                    No quizzes found. Get started by creating one.
+                    {searchQuery ? `No quizzes found for "${searchQuery}".` : "No quizzes found. Get started by creating one."}
                   </TableCell>
                 </TableRow>
               )}

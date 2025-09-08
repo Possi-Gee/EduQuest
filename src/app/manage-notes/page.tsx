@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { PlusCircle, Trash2, Library, FilePenLine, Eye, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Library, FilePenLine, Eye, Loader2, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -35,6 +35,7 @@ export default function ManageNotesPage() {
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -53,10 +54,12 @@ export default function ManageNotesPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [toast]);
   
+  const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
   const notesBySubject = subjects.reduce((acc, subject) => {
-    acc[subject] = notes.filter(note => note.category === subject);
+    acc[subject] = filteredNotes.filter(note => note.category === subject);
     return acc;
   }, {} as Record<string, Note[]>);
 
@@ -123,6 +126,8 @@ export default function ManageNotesPage() {
     </div>
   );
 
+  const subjectsWithNotes = subjects.filter(subject => notesBySubject[subject]?.length > 0);
+
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -162,10 +167,19 @@ export default function ManageNotesPage() {
             </Dialog>
         </div>
       </div>
+        <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+                placeholder="Search notes..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+        </div>
       
       <div className="space-y-4">
         {loading ? <LoadingSkeleton /> : (
-            <Accordion type="multiple" className="w-full space-y-2">
+            <Accordion type="multiple" className="w-full space-y-2" defaultValue={subjectsWithNotes}>
             {subjects.map(subject => (
                 <AccordionItem key={subject} value={subject} className="bg-card border-none rounded-lg shadow-sm">
                 <AccordionTrigger className="p-4 hover:no-underline">
@@ -194,7 +208,9 @@ export default function ManageNotesPage() {
                                 </div>
                             ))
                     ) : (
-                        <p className="text-sm text-muted-foreground text-center p-4">No notes in this subject yet.</p>
+                        <p className="text-sm text-muted-foreground text-center p-4">
+                            {searchQuery ? `No notes found for "${searchQuery}" in this subject.` : 'No notes in this subject yet.'}
+                        </p>
                     )}
                     <div className="flex justify-between items-center pt-2">
                             <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject)}>

@@ -6,7 +6,7 @@ import { getStudents, deleteStudent as deleteStudentFromData } from '@/lib/data'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,10 +21,12 @@ import { useToast } from '@/hooks/use-toast';
 import type { Student } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProfileAvatar } from '@/components/profile-avatar';
+import { Input } from '@/components/ui/input';
 
 export default function ManageStudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { toast } = useToast();
   
@@ -38,6 +40,10 @@ export default function ManageStudentsPage() {
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  const filteredStudents = students.filter(student => 
+    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleRemoveStudent = async (studentId: string, studentName: string) => {
     if (confirm(`Are you sure you want to remove ${studentName}?`)) {
@@ -68,6 +74,15 @@ export default function ManageStudentsPage() {
         <CardHeader>
           <CardTitle>Enrolled Students</CardTitle>
           <CardDescription>View and manage all students in your class.</CardDescription>
+           <div className="relative pt-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                    placeholder="Search students by name..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -96,8 +111,8 @@ export default function ManageStudentsPage() {
                         <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                     </TableRow>
                  ))
-              ) : students.length > 0 ? (
-                students.map((student) => (
+              ) : filteredStudents.length > 0 ? (
+                filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
@@ -149,7 +164,7 @@ export default function ManageStudentsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
-                    No students found.
+                    {searchQuery ? `No students found for "${searchQuery}".` : "No students found."}
                   </TableCell>
                 </TableRow>
               )}

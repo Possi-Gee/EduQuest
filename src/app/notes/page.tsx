@@ -9,11 +9,14 @@ import Link from 'next/link';
 import type { Note } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 export default function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +33,8 @@ export default function NotesPage() {
 
   const [activeTab, setActiveTab] = useState('All');
 
-  const filteredNotes = activeTab === 'All' ? notes : notes.filter(note => note.category === activeTab);
+  const tabFilteredNotes = activeTab === 'All' ? notes : notes.filter(note => note.category === activeTab);
+  const filteredNotes = tabFilteredNotes.filter(note => note.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const LoadingSkeleton = () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
@@ -53,6 +57,15 @@ export default function NotesPage() {
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <h1 className="text-3xl font-bold">Notes</h1>
+        <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+                placeholder="Search notes..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+        </div>
       {loading ? (
         <div className="space-y-4">
             <Skeleton className="h-10 w-full" />
@@ -86,7 +99,7 @@ export default function NotesPage() {
                     </div>
                 ) : (
                     <div className="text-center text-muted-foreground py-16">
-                        <p>No notes found in this category.</p>
+                        <p>No notes found for "{searchQuery}" in this category.</p>
                     </div>
                 )}
             </TabsContent>

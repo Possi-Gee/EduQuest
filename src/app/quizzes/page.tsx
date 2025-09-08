@@ -6,18 +6,20 @@ import { getQuizzes, getSubjects } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Clock } from 'lucide-react';
+import { Clock, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Quiz } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,7 +34,8 @@ export default function QuizzesPage() {
     fetchData();
   }, []);
 
-  const filteredQuizzes = activeTab === 'All' ? quizzes : quizzes.filter(quiz => quiz.category === activeTab);
+  const tabFilteredQuizzes = activeTab === 'All' ? quizzes : quizzes.filter(quiz => quiz.category === activeTab);
+  const filteredQuizzes = tabFilteredQuizzes.filter(quiz => quiz.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -64,8 +67,19 @@ export default function QuizzesPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in-50">
-      <h1 className="text-3xl font-bold">Quizzes</h1>
-      <p className="text-muted-foreground">Test your knowledge. Choose a quiz to begin.</p>
+      <div>
+        <h1 className="text-3xl font-bold">Quizzes</h1>
+        <p className="text-muted-foreground">Test your knowledge. Choose a quiz to begin.</p>
+      </div>
+       <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+                placeholder="Search quizzes..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+        </div>
       
       {loading ? (
         <div className="space-y-4">
@@ -110,7 +124,7 @@ export default function QuizzesPage() {
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-16">
-                  <p>No quizzes found in this category.</p>
+                  <p>No quizzes found for "{searchQuery}" in this category.</p>
               </div>
             )}
           </TabsContent>
