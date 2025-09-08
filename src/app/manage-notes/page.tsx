@@ -59,9 +59,14 @@ export default function ManageNotesPage() {
   const filteredNotes = notes.filter(note => note.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const notesBySubject = subjects.reduce((acc, subject) => {
-    acc[subject] = filteredNotes.filter(note => note.category === subject);
+    const subjectNotes = filteredNotes.filter(note => note.category === subject);
+    if(subjectNotes.length > 0) {
+        acc[subject] = subjectNotes;
+    }
     return acc;
   }, {} as Record<string, Note[]>);
+  
+  const subjectsWithFilteredNotes = Object.keys(notesBySubject);
 
   const handleAddSubject = async () => {
     if (!newSubject.trim()) {
@@ -126,8 +131,6 @@ export default function ManageNotesPage() {
     </div>
   );
 
-  const subjectsWithNotes = subjects.filter(subject => notesBySubject[subject]?.length > 0);
-
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -179,8 +182,8 @@ export default function ManageNotesPage() {
       
       <div className="space-y-4">
         {loading ? <LoadingSkeleton /> : (
-            <Accordion type="multiple" className="w-full space-y-2" defaultValue={subjectsWithNotes}>
-            {subjects.map(subject => (
+            <Accordion type="multiple" className="w-full space-y-2" defaultValue={subjectsWithFilteredNotes}>
+            {subjectsWithFilteredNotes.map(subject => (
                 <AccordionItem key={subject} value={subject} className="bg-card border-none rounded-lg shadow-sm">
                 <AccordionTrigger className="p-4 hover:no-underline">
                     <div className="flex items-center gap-3">
@@ -234,7 +237,13 @@ export default function ManageNotesPage() {
               <p className="text-sm mt-2">Click "Add Subject" to get started.</p>
             </div>
         )}
+        {!loading && searchQuery && subjectsWithFilteredNotes.length === 0 && (
+             <div className="text-center text-muted-foreground py-12 bg-card rounded-lg">
+              <p>No notes found for "{searchQuery}".</p>
+            </div>
+        )}
       </div>
     </div>
   );
 }
+
