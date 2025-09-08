@@ -29,22 +29,6 @@ const teacherNavLinks = [
   { href: '/settings', icon: LayoutGrid, label: 'More' },
 ];
 
-const adminNavLinks = [
-  { href: '/admin', icon: Home, label: 'Home' },
-  { href: '/admin/manage-teachers', icon: Users, label: 'Manage Teachers' },
-  { href: '/admin/manage-students', icon: Users, label: 'Manage Students' },
-  { href: '/admin/settings', icon: Settings, label: 'School Settings' },
-  { href: '/settings', icon: LayoutGrid, label: 'More' },
-];
-
-const superAdminNavLinks = [
-  { href: '/superadmin', icon: Home, label: 'Home' },
-  { href: '/superadmin/manage-admins', icon: Shield, label: 'Manage Admins' },
-  { href: '/superadmin/manage-schools', icon: School, label: 'Manage Schools' },
-  { href: '/superadmin/settings', icon: Settings, label: 'Platform Settings' },
-];
-
-
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
@@ -150,10 +134,6 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
     const getNavLinks = (role: string | null) => {
         switch(role) {
-            case 'superadmin':
-                return superAdminNavLinks;
-            case 'admin':
-                return adminNavLinks;
             case 'teacher':
                 return teacherNavLinks;
             case 'student':

@@ -12,7 +12,7 @@ const db = getFirestore(app);
 
 interface AuthContextType {
   user: User | null;
-  userRole: 'student' | 'teacher' | 'admin' | 'superadmin' | null;
+  userRole: 'student' | 'teacher' | null;
   isNewUser: boolean | null;
   loading: boolean;
   recheckUser: () => Promise<void>;
@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<'student' | 'teacher' | 'admin' | 'superadmin' | null>(null);
+  const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -70,10 +70,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const getRedirectPath = (role: string | null) => {
     switch (role) {
-        case 'superadmin':
-            return '/superadmin';
-        case 'admin':
-            return '/admin';
         case 'teacher':
             return '/dashboard';
         case 'student':

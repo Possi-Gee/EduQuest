@@ -40,7 +40,7 @@ export interface Student {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'teacher' | 'admin' | 'superadmin';
+  role: 'student' | 'teacher';
   avatarUrl: string;
   quizzesTaken: number;
   averageScore: number;
