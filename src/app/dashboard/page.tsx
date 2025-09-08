@@ -53,26 +53,36 @@ export default function DashboardPage() {
             
             // Generate realistic recent activity from quiz attempts and new notes
             const quizActivities = fetchedStudents.flatMap(student => 
-                (student.quizHistory || []).map(attempt => ({
-                    student: student.name,
-                    studentId: student.id,
-                    action: `completed the "${attempt.quizTitle}" quiz`,
-                    date: new Date(attempt.date),
-                    type: 'quiz'
-                }))
-            );
+                (student.quizHistory || []).map(attempt => {
+                    const date = new Date(attempt.date);
+                    if (isNaN(date.getTime())) return null;
+                    return {
+                        student: student.name,
+                        studentId: student.id,
+                        action: `completed the "${attempt.quizTitle}" quiz`,
+                        date,
+                        type: 'quiz'
+                    }
+                })
+            ).filter(Boolean);
 
-            const noteActivities = fetchedNotes.map(note => ({
-                action: `A new note "${note.title}" was added`,
-                date: new Date(note.createdAt),
-                type: 'note'
-            }));
+            const noteActivities = fetchedNotes.map(note => {
+                // The note might not have a createdAt field if it's old data
+                if (!note.createdAt) return null;
+                const date = new Date(note.createdAt);
+                if (isNaN(date.getTime())) return null;
+                return {
+                    action: `A new note "${note.title}" was added`,
+                    date,
+                    type: 'note'
+                }
+            }).filter(Boolean);
 
             const allActivities = [...quizActivities, ...noteActivities]
                 .sort((a, b) => b.date.getTime() - a.date.getTime())
                 .slice(0, 5); // Get the 5 most recent activities
 
-            setRecentActivity(allActivities);
+            setRecentActivity(allActivities as any[]);
             setLoading(false);
         }
         fetchData();
